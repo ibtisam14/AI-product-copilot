@@ -49,25 +49,42 @@ class MockAdapter(BaseAdapter):
 # Optional: OpenAI adapter — uses OPENAI_API_KEY from env
 class OpenAIAdapter(BaseAdapter):
     def __init__(self, api_key: str):
-        import openai
-        self.openai = openai
-        self.openai.api_key = api_key
+        from openai import OpenAI
+        self.client = OpenAI(api_key=api_key)
 
     def get_embeddings(self, texts: List[str]):
-        # using text-embedding-3-small if available
-        res = self.openai.Embedding.create(model="text-embedding-3-small", input=texts)
-        return [r['embedding'] for r in res['data']]
+        response = self.client.embeddings.create(
+            model="text-embedding-3-small",
+            input=texts
+        )
+        return [data.embedding for data in response.data]
 
     def get_completion(self, messages, mode, context_snippets):
-        # build prompt fairly simply; user may customize
-        system = {"role":"system","content":"You are a helpful assistant. Base your answer on the provided context and include citation ids when you reference them."}
-        # combine context_snippets into system or user prompt
+        # Pick model based on mode
+        model_name = "gpt-3.5-turbo" if mode == "fast" else "gpt-4-turbo"
+
+        # Combine FAQ/product text
         context_text = "\n\n".join([f"[{s['id']}] {s['text']}" for s in context_snippets])
-        user_prompt = {"role":"user","content": messages[-1]['content'] + "\n\nContext:\n" + context_text + f"\n\nMode: {mode}"}
-        # use chat completions
-        completion = self.openai.ChatCompletion.create(
-            model="gpt-4o-mini", messages=[system, user_prompt], max_tokens=300
+
+        # Create the system + user message for the chat
+        system_message = {
+            "role": "system",
+            "content": "You are a helpful product assistant. Always base your answers on the context below."
+        }
+        user_message = {
+            "role": "user",
+            "content": f"Context:\n{context_text}\n\nQuestion:\n{messages[-1]['content']}"
+        }
+
+        # Call OpenAI Chat API
+        completion = self.client.chat.completions.create(
+            model=model_name,
+            messages=[system_message, user_message],
+            temperature=0.5,
+            max_tokens=300,
         )
-        text = completion['choices'][0]['message']['content']
-        # NOTE: parsing citations from text is nontrivial — we return empty citations here and let the caller rely on context_snippets ordering
-        return {"answer": text, "citations": [s['id'] for s in context_snippets[:3]]}
+
+        answer = completion.choices[0].message.content.strip()
+        citations = [s['id'] for s in context_snippets[:3]]
+
+        return {"answer": answer, "citations": citations}
