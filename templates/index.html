@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>🤖 AI Product FAQ Copilot</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 2rem;
+        }
+
+        .chat-box {
+            border: 1px solid #ccc;
+            padding: 1rem;
+            height: 250px;
+            overflow-y: auto;
+            margin-top: 1rem;
+        }
+
+        .user {
+            color: blue;
+            margin-bottom: .5rem;
+        }
+
+        .bot {
+            color: green;
+            margin-bottom: .5rem;
+        }
+
+        .error {
+            color: red;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h2>🤖 AI Product FAQ Copilot</h2>
+
+    <h3>Upload Data</h3>
+    <form id="uploadForm">
+        <label>products.csv:</label>
+        <input type="file" name="products" required><br><br>
+        <label>faq.md:</label>
+        <input type="file" name="faq" required><br><br>
+        <button type="submit">Upload</button>
+    </form>
+
+    <p id="uploadResult"></p>
+
+    <hr>
+
+    <div class="chat-box" id="chatBox"></div>
+
+    <form id="chatForm">
+        <input type="text" id="userInput" placeholder="Ask a question..." required style="width:70%;">
+        <button type="submit">Send</button>
+    </form>
+
+    <script>
+        // --- Helper: Get CSRF token from Django cookie ---
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== "") {
+                const cookies = document.cookie.split(';');
+                for (let cookie of cookies) {
+                    cookie = cookie.trim();
+                    if (cookie.startsWith(name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        const csrftoken = getCookie('csrftoken');
+
+        // --- Handle Upload ---
+        document.getElementById('uploadForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+
+            try {
+                const res = await fetch('/api/upload/', {
+                    method: 'POST',
+                    headers: { 'X-CSRFToken': csrftoken },
+                    body: formData
+                });
+
+                const data = await res.json();
+                document.getElementById('uploadResult').innerText =
+                    `Uploaded: ${data.products || 0} products, ${data.faq_chunks || 0} FAQ chunks`;
+            } catch (err) {
+                document.getElementById('uploadResult').innerHTML =
+                    `<span class="error">Upload failed: ${err.message}</span>`;
+            }
+        });
+
+        // --- Handle Chat ---
+        document.getElementById('chatForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const chatBox = document.getElementById('chatBox');
+            const userInput = document.getElementById('userInput').value;
+
+            chatBox.innerHTML += `<div class='user'>You: ${userInput}</div>`;
+
+            const payload = {
+                messages: [{ role: "user", content: userInput }]
+            };
+
+            try {
+                const res = await fetch('/api/chat/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrftoken
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await res.json();
+                chatBox.innerHTML += `<div class='bot'>Bot: ${data.answer || 'No response'}</div>`;
+                if (data.citations) {
+                    chatBox.innerHTML += `<div class='bot'>Citations: ${data.citations.join(', ')}</div>`;
+                }
+            } catch (err) {
+                chatBox.innerHTML += `<div class='error'>Error: ${err.message}</div>`;
+            }
+
+            chatBox.scrollTop = chatBox.scrollHeight;
+            document.getElementById('userInput').value = '';
+        });
+    </script>
+
+</body>
+
+</html>

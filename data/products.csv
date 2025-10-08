@@ -1,0 +1,4 @@
+id,name,notes,accords,price,longevity,season,imageUrl,popularity
+1,Smartwatch X,Tracks steps and heart rate,Tech,199.99,8h,All,https://example.com/watch.jpg,4.8
+2,Fitness Band Pro,Monitors sleep and calories,Health,99.99,10h,Summer,https://example.com/band.jpg,4.5
+3,Wireless Earbuds Z,High-quality sound and noise cancellation,Audio,149.99,12h,All,https://example.com/earbuds.jpg,4.7
