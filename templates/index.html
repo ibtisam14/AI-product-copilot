@@ -31,6 +31,19 @@
         .error {
             color: red;
         }
+
+        #toggleMode {
+            padding: 6px 12px;
+            font-size: 14px;
+            background-color: #f0f0f0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        #toggleMode:hover {
+            background-color: #e0e0e0;
+        }
     </style>
 </head>
 
@@ -53,12 +66,21 @@
 
     <div class="chat-box" id="chatBox"></div>
 
+    <!-- Mode Toggle -->
+    <div style="margin-bottom: 10px;">
+        <button type="button" id="toggleMode">Mode: Fast ⚡</button>
+    </div>
+
+    <!-- Chat Form -->
     <form id="chatForm">
         <input type="text" id="userInput" placeholder="Ask a question..." required style="width:70%;">
         <button type="submit">Send</button>
     </form>
 
     <script>
+        // --- State: Chat Mode ---
+        let chatMode = "fast"; // Default mode
+
         // --- Helper: Get CSRF token from Django cookie ---
         function getCookie(name) {
             let cookieValue = null;
@@ -75,6 +97,13 @@
             return cookieValue;
         }
         const csrftoken = getCookie('csrftoken');
+
+        // --- Toggle Mode Button ---
+        document.getElementById("toggleMode").addEventListener("click", () => {
+            chatMode = chatMode === "fast" ? "accurate" : "fast";
+            document.getElementById("toggleMode").innerText =
+                chatMode === "fast" ? "Mode: Fast ⚡" : "Mode: Accurate 🎯";
+        });
 
         // --- Handle Upload ---
         document.getElementById('uploadForm').addEventListener('submit', async (e) => {
@@ -106,7 +135,8 @@
             chatBox.innerHTML += `<div class='user'>You: ${userInput}</div>`;
 
             const payload = {
-                messages: [{ role: "user", content: userInput }]
+                messages: [{ role: "user", content: userInput }],
+                mode: chatMode  // ✅ Send current mode to backend
             };
 
             try {
