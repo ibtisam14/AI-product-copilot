@@ -1,11 +1,11 @@
 id,name,notes,accords,price,longevity,season,imageUrl,popularity
-1,Smartwatch X,"Tracks steps, sleep, and heart rate",Tech,199.99,8h,All,https://example.com/smartwatch.jpg,4.8
-2,Fitness Band Pro,Monitors activity and calories,Tech,99.99,10h,Summer,https://example.com/fitnessband.jpg,4.6
-3,Wireless Earbuds Z,Crystal-clear sound with ANC,Tech,149.99,12h,All,https://example.com/earbuds.jpg,4.7
-4,4K Action Camera Pro,Records UHD video and supports Wi-Fi,Tech,299.99,15h,All,https://example.com/actioncamera.jpg,4.6
-5,Smartphone Alpha,Flagship display and powerful processor,Tech,799.99,24h,All,https://example.com/smartphone.jpg,4.9
-6,Laptop Pro 15,Lightweight laptop with Intel i7,Tech,1299.99,48h,All,https://example.com/laptop.jpg,4.8
-7,Wireless Keyboard Slim,Silent keys with multi-device pairing,Tech,59.99,72h,All,https://example.com/keyboard.jpg,4.3
-8,Gaming Mouse Ultra,RGB lighting with 16000 DPI,Tech,79.99,100h,Winter,https://example.com/mouse.jpg,4.5
-9,Noise Cancelling Headphones,Adaptive ANC and long battery,Tech,199.99,36h,All,https://example.com/headphones.jpg,4.9
-10,Smart Home Hub,Controls all smart gadgets at once,Tech,149.99,500h,All,https://example.com/smarthub.jpg,4.6
+1,Smartwatch X,"Tracks steps, sleep, heart rate, Available in stock",Tech,199.99,8h,All,https://example.com/smartwatch.jpg,4.8
+2,Fitness Band Pro,"Monitors activity and calories, Available in stock",Tech,99.99,10h,Summer,https://example.com/fitnessband.jpg,4.6
+3,Wireless Earbuds Z,"Crystal-clear sound with ANC, Available in stock",Tech,149.99,12h,All,https://example.com/earbuds.jpg,4.7
+4,4K Action Camera Pro,"Records UHD video and supports Wi-Fi, Available in stock",Tech,299.99,15h,All,https://example.com/actioncamera.jpg,4.6
+5,Smartphone Alpha,"Flagship display and powerful processor, Available in stock",Tech,799.99,24h,All,https://example.com/smartphone.jpg,4.9
+6,Laptop Pro 15,"Lightweight laptop with Intel i7, Available in stock",Tech,1299.99,48h,All,https://example.com/laptop.jpg,4.8
+7,Wireless Keyboard Slim,"Silent keys with multi-device pairing, Available in stock",Tech,59.99,72h,All,https://example.com/keyboard.jpg,4.3
+8,Gaming Mouse Ultra,"RGB lighting with 16000 DPI, Available in stock",Tech,79.99,100h,Winter,https://example.com/mouse.jpg,4.5
+9,Noise Cancelling Headphones,"Adaptive ANC and long battery, Available in stock",Tech,199.99,36h,All,https://example.com/headphones.jpg,4.9
+10,Smart Home Hub,"Controls all smart gadgets at once, Available in stock",Tech,149.99,500h,All,https://example.com/smarthub.jpg,4.6

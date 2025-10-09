@@ -1,12 +1,10 @@
 import json
 import numpy as np
-from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
-from .models import EmbeddingVector, Product, FAQChunk
 from django.db import transaction
 from typing import List, Dict
 
-def chunk_faq_markdown(md_text: str, approx_k=700):
+def chunk_faq_markdown(md_text: str, approx_k=1200):
     """
     Split markdown into ~approx_k char chunks by paragraphs/headers.
     Returns list of (heading, chunk_text).
@@ -17,7 +15,6 @@ def chunk_faq_markdown(md_text: str, approx_k=700):
     cur_heading = ""
     for line in lines:
         if line.strip().startswith("##"):
-            # flush
             if cur:
                 chunks.append((cur_heading, "\n".join(cur).strip()))
                 cur = []
@@ -31,55 +28,77 @@ def chunk_faq_markdown(md_text: str, approx_k=700):
         chunks.append((cur_heading, "\n".join(cur).strip()))
     return chunks
 
-def store_product_and_embeddings(products: List[Dict], vectors: List[List[float]], adapter_name="server"):
+def store_product_and_embeddings(products: List[Dict], vectors: List[List[float]]):
     """
-    products: list of dict parsed from CSV (each with id, name, notes, accords...)
-    vectors aligned one-per-product chunk (for simplicity we embed `name + notes`)
+    Store product info + embedding vectors in the database.
+    Includes all key fields so AI can answer questions like price.
     """
     from .models import Product, EmbeddingVector
-    import json
     with transaction.atomic():
         for prod, vec in zip(products, vectors):
-            p, _ = Product.objects.update_or_create(id=prod['id'], defaults={
-                'name': prod.get('name',''),
-                'notes': prod.get('notes',''),
-                'accords': prod.get('accords',''),
-                'price': prod.get('price') or None,
-                'longevity': prod.get('longevity',''),
-                'season': prod.get('season',''),
-                'image_url': prod.get('imageUrl',''),
-                'popularity': prod.get('popularity') or 0.0,
-            })
+            # Save product info
+            p, _ = Product.objects.update_or_create(
+                id=prod['id'],
+                defaults={
+                    'name': prod.get('name',''),
+                    'notes': prod.get('notes',''),
+                    'accords': prod.get('accords',''),
+                    'price': prod.get('price') or None,
+                    'longevity': prod.get('longevity',''),
+                    'season': prod.get('season',''),
+                    'image_url': prod.get('imageUrl',''),
+                    'popularity': prod.get('popularity') or 0.0,
+                }
+            )
+
+            # Save embedding vector with detailed text (all info)
             ev_id = f"p_{p.id}"
-            EmbeddingVector.objects.update_or_create(id=ev_id, defaults={
-                'source':'product',
-                'source_obj_id': p.id,
-                'text': f"{p.name}. {p.notes}",
-                'vector': json.dumps(vec)
-            })
+            EmbeddingVector.objects.update_or_create(
+                id=ev_id,
+                defaults={
+                    'source': 'product',
+                    'source_obj_id': p.id,
+                    'text': (
+                        f"Product: {p.name}. Notes: {p.notes}. "
+                        f"Accords: {p.accords}. Price: {p.price}. "
+                        f"Longevity: {p.longevity}. Season: {p.season}"
+                    ),
+                    'vector': json.dumps(vec)
+                }
+            )
 
 def store_faq_chunks_and_embeddings(chunks: List[Dict], vectors: List[List[float]]):
+    """
+    Store FAQ chunks + embedding vectors in the database.
+    """
     from .models import FAQChunk, EmbeddingVector
-    import json
     with transaction.atomic():
         for chunk, vec in zip(chunks, vectors):
             fid = chunk.get('id')
-            FAQChunk.objects.update_or_create(id=fid, defaults={
-                'heading': chunk.get('heading',''),
-                'text': chunk.get('text','')
-            })
-            EmbeddingVector.objects.update_or_create(id=f"f_{fid}", defaults={
-                'source':'faq',
-                'source_obj_id': fid,
-                'text': chunk.get('text',''),
-                'vector': json.dumps(vec)
-            })
+            # Save FAQ chunk
+            FAQChunk.objects.update_or_create(
+                id=fid,
+                defaults={
+                    'heading': chunk.get('heading',''),
+                    'text': chunk.get('text','')
+                }
+            )
+            # Save embedding
+            EmbeddingVector.objects.update_or_create(
+                id=f"f_{fid}",
+                defaults={
+                    'source': 'faq',
+                    'source_obj_id': fid,
+                    'text': chunk.get('text',''),
+                    'vector': json.dumps(vec)
+                }
+            )
 
 def load_all_vectors():
     """
-    returns list of dicts: {id, source, source_obj_id, text, vector(np.array)}
+    Returns list of dicts: {id, source, source_obj_id, text, vector(np.array)}
     """
-    import json
+    from .models import EmbeddingVector
     items = []
     for ev in EmbeddingVector.objects.all():
         vec = np.array(json.loads(ev.vector), dtype=float)
@@ -92,35 +111,34 @@ def load_all_vectors():
         })
     return items
 
-def retrieve_top_k(query_vector, k=8, alpha_bm25=0.2):
+def retrieve_top_k(query_vector, k=8, threshold=0.50):
     """
-    Combine cosine similarity on embeddings + TF-IDF similarity score (as BM25 approximation).
-    Returns top_k items with combined score and sorted.
+    Returns top_k embeddings above similarity threshold.
+    Lowered threshold to improve matching.
     """
     items = load_all_vectors()
     if not items:
         return []
-    texts = [it['text'] for it in items]
-    # TF-IDF vectorizer
-    tfidf = TfidfVectorizer().fit(texts + [" ".join(map(str, query_vector))])
-    text_vecs = tfidf.transform(texts)
-    # approximate text-based similarity by transforming query into the same tf-idf space
-    # (we don't have the raw query text here normally; this function expects caller to pass query_text for BM25)
-    # For simplicity, compute cosine similarity on embedding vectors:
+
     mats = np.vstack([it['vector'] for it in items])
     qv = np.array(query_vector).reshape(1, -1)
-    cos = cosine_similarity(qv, mats).flatten()  # shape (n,)
-    # If text-based scoring needed, caller can compute and pass; using cos only here
-    combined = cos  # placeholder for combination
-    ranked_idx = np.argsort(-combined)[:k]
+    cos = cosine_similarity(qv, mats).flatten()
+
+    # Filter by similarity threshold
+    filtered_idx = [i for i, s in enumerate(cos) if s >= threshold]
+    if not filtered_idx:
+        return []
+
+    # Sort by similarity and return top k
+    sorted_idx = sorted(filtered_idx, key=lambda i: -cos[i])[:k]
     results = []
-    for idx in ranked_idx:
+    for idx in sorted_idx:
         it = items[idx]
         results.append({
             'id': it['id'],
             'source': it['source'],
             'source_obj_id': it['source_obj_id'],
             'text': it['text'],
-            'score': float(combined[idx])
+            'score': float(cos[idx])
         })
     return results

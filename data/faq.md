@@ -8,6 +8,12 @@ Yes, it’s water resistant up to 50 meters.
 ## How long does the battery last?
 Up to 8 hours with continuous health tracking.
 
+## Is it available in stock?
+Yes, Smartwatch X is available in stock.
+
+## What is the price?
+Price: 199.99 USD.
+
 ---
 
 # Fitness Band Pro
@@ -19,6 +25,12 @@ Yes, it measures your heart rate 24/7.
 
 ## Can I use it without a phone?
 It stores limited data and syncs later when connected.
+
+## Is it available in stock?
+Yes, Fitness Band Pro is available in stock.
+
+## What is the price?
+Price: 99.99 USD.
 
 ---
 
@@ -32,6 +44,12 @@ Up to 12 hours of playback.
 ## Are they water resistant?
 Yes, rated IPX5 — suitable for workouts and rain.
 
+## Is it available in stock?
+Yes, Wireless Earbuds Z is available in stock.
+
+## What is the price?
+Price: 149.99 USD.
+
 ---
 
 # 4K Action Camera Pro
@@ -43,6 +61,12 @@ Yes, up to 30 meters with the protective case.
 
 ## Can I control it via Wi-Fi?
 Yes, you can preview and share via its companion app.
+
+## Is it available in stock?
+Yes, 4K Action Camera Pro is available in stock.
+
+## What is the price?
+Price: 299.99 USD.
 
 ---
 
@@ -56,6 +80,12 @@ Yes, full 5G network compatibility.
 ## How good is the camera?
 It has a 108MP triple-lens system for professional-grade photos.
 
+## Is it available in stock?
+Yes, Smartphone Alpha is available in stock.
+
+## What is the price?
+Price: 799.99 USD.
+
 ---
 
 # Laptop Pro 15
@@ -67,6 +97,12 @@ Comes with 16GB RAM (expandable to 32GB).
 
 ## Is it good for gaming?
 Yes, with its dedicated graphics and cooling system.
+
+## Is it available in stock?
+Yes, Laptop Pro 15 is available in stock.
+
+## What is the price?
+Price: 1299.99 USD.
 
 ---
 
@@ -80,6 +116,12 @@ Yes, it charges via USB-C and lasts up to 3 months per charge.
 ## Is it quiet?
 Yes, designed for silent typing.
 
+## Is it available in stock?
+Yes, Wireless Keyboard Slim is available in stock.
+
+## What is the price?
+Price: 59.99 USD.
+
 ---
 
 # Gaming Mouse Ultra
@@ -91,6 +133,12 @@ Up to 16,000 DPI for high precision.
 
 ## Is it wireless?
 Yes, with ultra-low latency and fast recharging.
+
+## Is it available in stock?
+Yes, Gaming Mouse Ultra is available in stock.
+
+## What is the price?
+Price: 79.99 USD.
 
 ---
 
@@ -104,6 +152,12 @@ Up to 36 hours on a single charge.
 ## Can I use them with a cable?
 Yes, includes a 3.5mm cable for wired use.
 
+## Is it available in stock?
+Yes, Noise Cancelling Headphones are available in stock.
+
+## What is the price?
+Price: 199.99 USD.
+
 ---
 
 # Smart Home Hub
@@ -115,3 +169,9 @@ Yes, Wi-Fi is required for automation and remote access.
 
 ## Can I use voice commands?
 Yes, works with Alexa, Google Assistant, and Siri.
+
+## Is it available in stock?
+Yes, Smart Home Hub is available in stock.
+
+## What is the price?
+Price: 149.99 USD.

@@ -134,7 +134,11 @@ class ChatView(APIView):
         adapter = get_adapter()
 
         if provided_context:
-            resp = adapter.get_completion(messages=messages, mode=mode, context_snippets=provided_context)
+            resp = adapter.get_completion(
+                messages=messages,
+                mode=mode,
+                context_snippets=provided_context
+            )
             return Response(resp)
 
         if not messages or "content" not in messages[-1]:
@@ -144,12 +148,31 @@ class ChatView(APIView):
         vectors = adapter.get_embeddings([query_text])
         query_vec = vectors[0]
 
+        # Retrieve top relevant embeddings
         top = retrieve_top_k(query_vec, k=8)
+
+        if not top:
+            # No relevant context found
+            return Response({
+                "answer": "Sorry, your question is out of scope.",
+                "citations": []
+            })
+
+        # Take top 3 results
         top3 = top[:3]
-        context_snippets = [{"id": t["id"], "source": t["source"], "text": t["text"]} for t in top3]
+        context_snippets = [
+            {"id": t["id"], "source": t["source"], "text": t["text"]}
+            for t in top3
+        ]
 
-        resp = adapter.get_completion(messages=messages, mode=mode, context_snippets=context_snippets)
+        # Get AI completion using adapter with context
+        resp = adapter.get_completion(
+            messages=messages,
+            mode=mode,
+            context_snippets=context_snippets
+        )
 
+        # Ensure citations are returned
         if "citations" not in resp:
             resp["citations"] = [c["id"] for c in context_snippets]
 
