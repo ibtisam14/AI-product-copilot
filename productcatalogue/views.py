@@ -20,8 +20,10 @@ from django.shortcuts import render
 def home(request):
     return render(request, "index.html")
 
+
 def upload_page(request):
-    return render(request, "upload.html") 
+    return render(request, "upload.html")
+
 
 # views.py
 @method_decorator(csrf_exempt, name="dispatch")
@@ -32,7 +34,6 @@ class GetDataView(APIView):
         prods = list(Product.objects.all().values())
         faqs = list(FAQChunk.objects.all().values("id", "heading", "text"))
         return Response({"products": prods, "faqs": faqs})
-
 
 
 # Choose adapter: in production change to OpenAIAdapter if OPENAI_API_KEY set
@@ -71,19 +72,36 @@ class UploadIngestView(APIView):
             prods = []
             texts = []
             for row in reader:
+                # Safely parse price
+                raw_price = row.get("price", 0)
+                try:
+                    price = float(raw_price) if raw_price not in (None, "", "null", "NULL") else 0.0
+                except (ValueError, TypeError):
+                    price = 0.0
+
                 prod = {
                     "id": row.get("id") or row.get("ID") or row.get("Id"),
                     "name": row.get("name", ""),
                     "notes": row.get("notes", ""),
                     "accords": row.get("accords", ""),
-                    "price": float(row.get("price", 0) or 0),
+                    "price": price,
                     "longevity": row.get("longevity", ""),
                     "season": row.get("season", ""),
                     "imageUrl": row.get("imageUrl", ""),
                     "popularity": float(row.get("popularity", 0) or 0),
                 }
                 prods.append(prod)
-                texts.append((prod["id"], f"{prod['name']}. {prod['notes']}"))
+
+                # ✅ FIXED: Embed FULL product info including PRICE
+                embed_text = (
+                    f"Product name: {prod['name']}. "
+                    f"Description: {prod['notes']}. "
+                    f"Price: ${price:.2f}. "
+                    f"Features/Accords: {prod['accords']}. "
+                    f"Longevity: {prod['longevity']}. "
+                    f"Recommended season: {prod['season']}."
+                )
+                texts.append((prod["id"], embed_text))
 
             embed_texts = [t[1] for t in texts]
             vectors = adapter.get_embeddings(embed_texts)
@@ -148,31 +166,30 @@ class ChatView(APIView):
         vectors = adapter.get_embeddings([query_text])
         query_vec = vectors[0]
 
-        # Retrieve top relevant embeddings
+        # Retrieve top relevant embeddings (products + FAQs)
         top = retrieve_top_k(query_vec, k=8)
 
         if not top:
-            # No relevant context found
             return Response({
-                "answer": "Sorry, your question is out of scope.",
+                "answer": "Sorry, I couldn't find any relevant information.",
                 "citations": []
             })
 
-        # Take top 3 results
+        # Use top 3 most relevant snippets
         top3 = top[:3]
         context_snippets = [
             {"id": t["id"], "source": t["source"], "text": t["text"]}
             for t in top3
         ]
 
-        # Get AI completion using adapter with context
+        # Generate answer using retrieved context
         resp = adapter.get_completion(
             messages=messages,
             mode=mode,
             context_snippets=context_snippets
         )
 
-        # Ensure citations are returned
+        # Ensure citations are included
         if "citations" not in resp:
             resp["citations"] = [c["id"] for c in context_snippets]
 

@@ -31,7 +31,8 @@ def chunk_faq_markdown(md_text: str, approx_k=1200):
 def store_product_and_embeddings(products: List[Dict], vectors: List[List[float]]):
     """
     Store product info + embedding vectors in the database.
-    Includes all key fields so AI can answer questions like price.
+    Uses the SAME detailed text format as used during embedding generation
+    to ensure consistency between embedding and retrieved context.
     """
     from .models import Product, EmbeddingVector
     with transaction.atomic():
@@ -51,18 +52,24 @@ def store_product_and_embeddings(products: List[Dict], vectors: List[List[float]
                 }
             )
 
-            # Save embedding vector with detailed text (all info)
+            # ✅ IMPROVED: Use consistent, LLM-friendly text with clear price
+            price_display = f"${p.price:.2f}" if p.price is not None and p.price > 0 else "Price not available"
+            stored_text = (
+                f"Product name: {p.name}. "
+                f"Description: {p.notes}. "
+                f"Price: {price_display}. "
+                f"Features/Accords: {p.accords}. "
+                f"Longevity: {p.longevity}. "
+                f"Recommended season: {p.season}."
+            )
+
             ev_id = f"p_{p.id}"
             EmbeddingVector.objects.update_or_create(
                 id=ev_id,
                 defaults={
                     'source': 'product',
                     'source_obj_id': p.id,
-                    'text': (
-                        f"Product: {p.name}. Notes: {p.notes}. "
-                        f"Accords: {p.accords}. Price: {p.price}. "
-                        f"Longevity: {p.longevity}. Season: {p.season}"
-                    ),
+                    'text': stored_text,
                     'vector': json.dumps(vec)
                 }
             )
@@ -111,10 +118,10 @@ def load_all_vectors():
         })
     return items
 
-def retrieve_top_k(query_vector, k=8, threshold=0.50):
+def retrieve_top_k(query_vector, k=8, threshold=0.45):
     """
     Returns top_k embeddings above similarity threshold.
-    Lowered threshold to improve matching.
+    Slightly lowered threshold (0.45) to catch more relevant product matches.
     """
     items = load_all_vectors()
     if not items:
