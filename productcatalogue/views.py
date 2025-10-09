@@ -20,12 +20,19 @@ from django.shortcuts import render
 def home(request):
     return render(request, "index.html")
 
+def upload_page(request):
+    return render(request, "upload.html")
+
 
 # Choose adapter: in production change to OpenAIAdapter if OPENAI_API_KEY set
 def get_adapter():
-    if getattr(settings, "OPENAI_API_KEY", ""):
-        return OpenAIAdapter(settings.OPENAI_API_KEY)
-    return MockAdapter()
+    api_key = getattr(settings, "OPENAI_API_KEY", "")
+    if api_key:
+        print("✅ Using OpenAI Adapter")  # Debug message
+        return OpenAIAdapter(api_key)
+    else:
+        print("⚠️ Using Mock Adapter (no API key found)")  # Debug message
+        return MockAdapter()
 
 
 @method_decorator(csrf_exempt, name="dispatch")

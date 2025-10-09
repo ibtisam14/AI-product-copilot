@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>📤 Upload Product & FAQ Data</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100 min-h-screen">
+    <div class="container mx-auto p-6">
+        <h1 class="text-3xl font-bold text-center text-indigo-600 mb-8">
+            📤 Upload Product & FAQ Data
+        </h1>
+
+        <!-- Upload Section -->
+        <section class="bg-white shadow-md rounded-xl p-6 max-w-lg mx-auto">
+            <form id="uploadForm" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Products CSV</label>
+                    <input type="file" name="products" class="mt-1 block w-full border rounded p-2">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">FAQ Markdown</label>
+                    <input type="file" name="faq" class="mt-1 block w-full border rounded p-2">
+                </div>
+                <button type="submit"
+                    class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg transition">Upload</button>
+            </form>
+            <p id="uploadResult" class="mt-3 text-sm text-gray-600"></p>
+        </section>
+
+        <div class="text-center mt-8">
+            <a href="/" class="text-indigo-600 hover:underline">← Back to Dashboard</a>
+        </div>
+    </div>
+
+    <script>
+        // ============ HELPER ============
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== "") {
+                const cookies = document.cookie.split(';');
+                for (let cookie of cookies) {
+                    cookie = cookie.trim();
+                    if (cookie.startsWith(name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        const csrftoken = getCookie('csrftoken');
+
+        // ============ UPLOAD HANDLER ============
+        document.getElementById("uploadForm").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+
+            try {
+                const res = await fetch("/upload/", {
+                    method: "POST",
+                    headers: { "X-CSRFToken": csrftoken },
+                    body: formData,
+                });
+                const data = await res.json();
+                document.getElementById("uploadResult").innerText =
+                    `✅ Uploaded ${data.products || 0} products and ${data.faq_chunks || 0} FAQs`;
+            } catch (err) {
+                document.getElementById("uploadResult").innerText = `❌ Upload failed: ${err.message}`;
+            }
+        });
+    </script>
+</body>
+
+</html>
