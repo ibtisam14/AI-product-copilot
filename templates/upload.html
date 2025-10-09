@@ -3,40 +3,239 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>📤 Upload Product & FAQ Data</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Data | AI Product & FAQ Copilot</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .drag-over {
+            background-color: #f0f9ff;
+            border-color: #3b82f6;
+            transform: scale(1.02);
+        }
+
+        .fade-in {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .progress-bar {
+            transition: width 0.3s ease-in-out;
+        }
+
+        .file-upload-area {
+            transition: all 0.3s ease;
+        }
+    </style>
 </head>
 
-<body class="bg-gray-100 min-h-screen">
-    <div class="container mx-auto p-6">
-        <h1 class="text-3xl font-bold text-center text-indigo-600 mb-8">
-            📤 Upload Product & FAQ Data
-        </h1>
-
-        <!-- Upload Section -->
-        <section class="bg-white shadow-md rounded-xl p-6 max-w-lg mx-auto">
-            <form id="uploadForm" class="space-y-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Products CSV</label>
-                    <input type="file" name="products" class="mt-1 block w-full border rounded p-2">
+<body class="bg-gradient-to-br from-gray-50 to-blue-50 min-h-screen">
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
+                <div class="flex items-center gap-3">
+                    <div class="bg-gradient-to-r from-indigo-500 to-purple-600 p-2 rounded-xl">
+                        <i class="fas fa-cloud-upload-alt text-white text-xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-2xl font-bold text-gray-800">Upload Data</h1>
+                        <p class="text-sm text-gray-500">AI Product & FAQ Copilot</p>
+                    </div>
                 </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">FAQ Markdown</label>
-                    <input type="file" name="faq" class="mt-1 block w-full border rounded p-2">
-                </div>
-                <button type="submit"
-                    class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg transition">Upload</button>
-            </form>
-            <p id="uploadResult" class="mt-3 text-sm text-gray-600"></p>
-        </section>
 
-        <div class="text-center mt-8">
-            <a href="/" class="text-indigo-600 hover:underline">← Back to Dashboard</a>
+                <a href="/"
+                    class="flex items-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg transition-all duration-200 font-medium">
+                    <i class="fas fa-arrow-left"></i>
+                    <span>Back to Dashboard</span>
+                </a>
+            </div>
         </div>
-    </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8">
+        <div class="max-w-2xl mx-auto">
+            <!-- Upload Instructions -->
+            <section class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden mb-8">
+                <div class="bg-gradient-to-r from-emerald-500 to-teal-600 p-4">
+                    <div class="flex items-center gap-3">
+                        <i class="fas fa-info-circle text-white text-xl"></i>
+                        <h2 class="text-xl font-semibold text-white">Upload Instructions</h2>
+                    </div>
+                </div>
+
+                <div class="p-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="space-y-3">
+                            <div class="flex items-start gap-3">
+                                <div class="bg-blue-100 p-2 rounded-lg mt-1">
+                                    <i class="fas fa-file-csv text-blue-600"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-semibold text-gray-800">Products CSV</h3>
+                                    <p class="text-sm text-gray-600">Upload your product catalog with columns: id, name,
+                                        notes, accords, price, longevity, season, imageUrl, popularity</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="space-y-3">
+                            <div class="flex items-start gap-3">
+                                <div class="bg-green-100 p-2 rounded-lg mt-1">
+                                    <i class="fas fa-file-alt text-green-600"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-semibold text-gray-800">FAQ Markdown</h3>
+                                    <p class="text-sm text-gray-600">Upload FAQ content in Markdown format. Use headings
+                                        (##) and paragraphs for automatic chunking</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Upload Section -->
+            <section class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                <div class="bg-gradient-to-r from-indigo-500 to-purple-600 p-4">
+                    <div class="flex items-center gap-3">
+                        <i class="fas fa-upload text-white text-xl"></i>
+                        <h2 class="text-xl font-semibold text-white">Upload Files</h2>
+                    </div>
+                </div>
+
+                <div class="p-6">
+                    <form id="uploadForm" class="space-y-6">
+                        <!-- Products CSV Upload -->
+                        <div class="file-upload-area">
+                            <label class="block text-sm font-medium text-gray-700 mb-3">
+                                <i class="fas fa-file-csv text-blue-500 mr-2"></i>
+                                Products CSV File
+                            </label>
+                            <div id="productsDropArea"
+                                class="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center transition-all duration-200 hover:border-indigo-400 hover:bg-indigo-50 cursor-pointer">
+                                <i class="fas fa-cloud-upload-alt text-3xl text-gray-400 mb-3"></i>
+                                <p class="text-gray-600 font-medium">Drop your products CSV file here or click to browse
+                                </p>
+                                <p class="text-sm text-gray-500 mt-1">Supports .csv files</p>
+                                <input type="file" name="products" accept=".csv" class="hidden" id="productsFile">
+                            </div>
+                            <div id="productsFileInfo" class="mt-2 hidden">
+                                <!-- File info will be shown here -->
+                            </div>
+                        </div>
+
+                        <!-- FAQ Markdown Upload -->
+                        <div class="file-upload-area">
+                            <label class="block text-sm font-medium text-gray-700 mb-3">
+                                <i class="fas fa-file-alt text-green-500 mr-2"></i>
+                                FAQ Markdown File
+                            </label>
+                            <div id="faqDropArea"
+                                class="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center transition-all duration-200 hover:border-indigo-400 hover:bg-indigo-50 cursor-pointer">
+                                <i class="fas fa-cloud-upload-alt text-3xl text-gray-400 mb-3"></i>
+                                <p class="text-gray-600 font-medium">Drop your FAQ markdown file here or click to browse
+                                </p>
+                                <p class="text-sm text-gray-500 mt-1">Supports .md files</p>
+                                <input type="file" name="faq" accept=".md" class="hidden" id="faqFile">
+                            </div>
+                            <div id="faqFileInfo" class="mt-2 hidden">
+                                <!-- File info will be shown here -->
+                            </div>
+                        </div>
+
+                        <!-- Upload Button -->
+                        <button type="submit" id="uploadButton"
+                            class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-3 px-4 rounded-xl transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
+                            <i class="fas fa-upload"></i>
+                            <span>Process Upload</span>
+                        </button>
+                    </form>
+
+                    <!-- Upload Result -->
+                    <div id="uploadResult" class="mt-4 fade-in hidden">
+                        <!-- Results will be shown here -->
+                    </div>
+
+                    <!-- Loading Indicator -->
+                    <div id="loadingIndicator" class="mt-4 hidden">
+                        <div class="flex items-center justify-center gap-3 text-indigo-600">
+                            <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-indigo-600"></div>
+                            <span>Processing your files...</span>
+                        </div>
+                        <div class="mt-2 bg-gray-200 rounded-full h-2">
+                            <div id="progressBar" class="progress-bar bg-indigo-600 h-2 rounded-full w-0"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Next Steps -->
+            <section class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden mt-8">
+                <div class="bg-gradient-to-r from-amber-500 to-orange-600 p-4">
+                    <div class="flex items-center gap-3">
+                        <i class="fas fa-lightbulb text-white text-xl"></i>
+                        <h2 class="text-xl font-semibold text-white">What Happens Next?</h2>
+                    </div>
+                </div>
+
+                <div class="p-6">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
+                        <div class="p-4">
+                            <div
+                                class="bg-blue-100 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3">
+                                <i class="fas fa-brain text-blue-600 text-xl"></i>
+                            </div>
+                            <h3 class="font-semibold text-gray-800 mb-2">AI Processing</h3>
+                            <p class="text-sm text-gray-600">Our AI generates embeddings and processes your data for
+                                intelligent search</p>
+                        </div>
+
+                        <div class="p-4">
+                            <div
+                                class="bg-green-100 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3">
+                                <i class="fas fa-bolt text-green-600 text-xl"></i>
+                            </div>
+                            <h3 class="font-semibold text-gray-800 mb-2">Instant Availability</h3>
+                            <p class="text-sm text-gray-600">Your data becomes immediately available for chat queries
+                                and searches</p>
+                        </div>
+
+                        <div class="p-4">
+                            <div
+                                class="bg-purple-100 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3">
+                                <i class="fas fa-robot text-purple-600 text-xl"></i>
+                            </div>
+                            <h3 class="font-semibold text-gray-800 mb-2">Smart Interactions</h3>
+                            <p class="text-sm text-gray-600">Chat with your AI assistant using the newly uploaded
+                                product and FAQ data</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
 
     <script>
-        // ============ HELPER ============
+        // ============ HELPER FUNCTIONS ============
         function getCookie(name) {
             let cookieValue = null;
             if (document.cookie && document.cookie !== "") {
@@ -53,23 +252,176 @@
         }
         const csrftoken = getCookie('csrftoken');
 
+        // ============ FILE UPLOAD ENHANCEMENTS ============
+        function setupFileUpload(dropAreaId, fileInputId, fileInfoId, fileType) {
+            const dropArea = document.getElementById(dropAreaId);
+            const fileInput = document.getElementById(fileInputId);
+            const fileInfo = document.getElementById(fileInfoId);
+
+            // Click to select file
+            dropArea.addEventListener('click', () => {
+                fileInput.click();
+            });
+
+            // File input change
+            fileInput.addEventListener('change', (e) => {
+                if (e.target.files.length > 0) {
+                    showFileInfo(e.target.files[0], fileInfo, fileType);
+                }
+            });
+
+            // Drag and drop functionality
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                dropArea.addEventListener(eventName, preventDefaults, false);
+            });
+
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+
+            ['dragenter', 'dragover'].forEach(eventName => {
+                dropArea.addEventListener(eventName, () => {
+                    dropArea.classList.add('drag-over');
+                }, false);
+            });
+
+            ['dragleave', 'drop'].forEach(eventName => {
+                dropArea.addEventListener(eventName, () => {
+                    dropArea.classList.remove('drag-over');
+                }, false);
+            });
+
+            dropArea.addEventListener('drop', (e) => {
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    fileInput.files = files;
+                    showFileInfo(files[0], fileInfo, fileType);
+                }
+            }, false);
+        }
+
+        function showFileInfo(file, fileInfoElement, fileType) {
+            const fileSize = (file.size / 1024 / 1024).toFixed(2); // Convert to MB
+            fileInfoElement.innerHTML = `
+                <div class="fade-in bg-green-50 border border-green-200 rounded-lg p-3 flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <i class="fas fa-file ${fileType === 'CSV' ? 'text-blue-500' : 'text-green-500'}"></i>
+                        <div>
+                            <p class="font-medium text-gray-800">${file.name}</p>
+                            <p class="text-sm text-gray-600">${fileSize} MB</p>
+                        </div>
+                    </div>
+                    <button type="button" class="text-red-500 hover:text-red-700" onclick="clearFile(this, '${fileType}')">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            `;
+            fileInfoElement.classList.remove('hidden');
+        }
+
+        function clearFile(button, fileType) {
+            const fileInfoElement = button.closest('.bg-green-50').parentElement;
+            const fileInput = fileType === 'CSV' ? document.getElementById('productsFile') : document.getElementById('faqFile');
+
+            fileInput.value = '';
+            fileInfoElement.classList.add('hidden');
+        }
+
         // ============ UPLOAD HANDLER ============
         document.getElementById("uploadForm").addEventListener("submit", async (e) => {
             e.preventDefault();
-            const formData = new FormData(e.target);
+
+            const uploadButton = document.getElementById("uploadButton");
+            const loadingIndicator = document.getElementById("loadingIndicator");
+            const uploadResult = document.getElementById("uploadResult");
+            const progressBar = document.getElementById("progressBar");
+
+            // Check if at least one file is selected
+            const productsFile = document.getElementById("productsFile").files[0];
+            const faqFile = document.getElementById("faqFile").files[0];
+
+            if (!productsFile && !faqFile) {
+                showResult("Please select at least one file to upload", "error");
+                return;
+            }
+
+            // Disable button and show loading
+            uploadButton.disabled = true;
+            uploadButton.innerHTML = '<i class="fas fa-spinner animate-spin"></i><span>Processing...</span>';
+            loadingIndicator.classList.remove('hidden');
+            uploadResult.classList.add('hidden');
+
+            // Simulate progress
+            let progress = 0;
+            const progressInterval = setInterval(() => {
+                progress += Math.random() * 10;
+                if (progress > 90) progress = 90;
+                progressBar.style.width = `${progress}%`;
+            }, 200);
 
             try {
-                const res = await fetch("/upload/", {
+                const formData = new FormData();
+                if (productsFile) formData.append("products.csv", productsFile);
+                if (faqFile) formData.append("faq.md", faqFile);
+
+                const res = await fetch("/api/upload/", {
                     method: "POST",
                     headers: { "X-CSRFToken": csrftoken },
                     body: formData,
                 });
+
                 const data = await res.json();
-                document.getElementById("uploadResult").innerText =
-                    `✅ Uploaded ${data.products || 0} products and ${data.faq_chunks || 0} FAQs`;
+
+                // Complete progress
+                clearInterval(progressInterval);
+                progressBar.style.width = '100%';
+
+                setTimeout(() => {
+                    if (res.ok) {
+                        showResult(`✅ Successfully uploaded ${data.products || 0} products and ${data.faq_chunks || 0} FAQ chunks`, "success");
+                    } else {
+                        showResult(`❌ Upload failed: ${data.detail || 'Unknown error'}`, "error");
+                    }
+
+                    // Reset UI
+                    loadingIndicator.classList.add('hidden');
+                    uploadButton.disabled = false;
+                    uploadButton.innerHTML = '<i class="fas fa-upload"></i><span>Process Upload</span>';
+                    progressBar.style.width = '0%';
+                }, 500);
+
             } catch (err) {
-                document.getElementById("uploadResult").innerText = `❌ Upload failed: ${err.message}`;
+                clearInterval(progressInterval);
+                showResult(`❌ Upload failed: ${err.message}`, "error");
+                loadingIndicator.classList.add('hidden');
+                uploadButton.disabled = false;
+                uploadButton.innerHTML = '<i class="fas fa-upload"></i><span>Process Upload</span>';
+                progressBar.style.width = '0%';
             }
+        });
+
+        function showResult(message, type) {
+            const uploadResult = document.getElementById("uploadResult");
+            const bgColor = type === "success" ? "bg-green-50 border-green-200" : "bg-red-50 border-red-200";
+            const textColor = type === "success" ? "text-green-800" : "text-red-800";
+            const icon = type === "success" ? "fa-check-circle" : "fa-exclamation-circle";
+            const iconColor = type === "success" ? "text-green-500" : "text-red-500";
+
+            uploadResult.innerHTML = `
+                <div class="fade-in ${bgColor} border rounded-xl p-4 flex items-center gap-3">
+                    <i class="fas ${icon} ${iconColor} text-lg"></i>
+                    <span class="${textColor} font-medium">${message}</span>
+                </div>
+            `;
+            uploadResult.classList.remove('hidden');
+        }
+
+        // ============ INITIALIZATION ============
+        document.addEventListener('DOMContentLoaded', () => {
+            // Setup file upload areas
+            setupFileUpload('productsDropArea', 'productsFile', 'productsFileInfo', 'CSV');
+            setupFileUpload('faqDropArea', 'faqFile', 'faqFileInfo', 'Markdown');
         });
     </script>
 </body>

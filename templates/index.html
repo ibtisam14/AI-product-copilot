@@ -3,52 +3,215 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>🛍️ AI Product & FAQ Copilot</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Product & FAQ Copilot | Smart Assistant</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .scrollbar-thin::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .scrollbar-thin::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 10px;
+        }
+
+        .scrollbar-thin::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+
+        .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        .chat-bubble-user {
+            border-radius: 18px 18px 4px 18px;
+        }
+
+        .chat-bubble-bot {
+            border-radius: 18px 18px 18px 4px;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .loading-dots:after {
+            content: '';
+            animation: dots 1.5s steps(5, end) infinite;
+        }
+
+        @keyframes dots {
+
+            0%,
+            20% {
+                content: '.';
+            }
+
+            40% {
+                content: '..';
+            }
+
+            60%,
+            100% {
+                content: '...';
+            }
+        }
+    </style>
 </head>
 
-<body class="bg-gray-100 min-h-screen">
-    <div class="container mx-auto p-6">
-        <div class="flex justify-between items-center mb-6">
-            <h1 class="text-3xl font-bold text-indigo-600">🛍️ AI Product & FAQ Copilot</h1>
-            <a href="/upload-data/" class="text-indigo-600 hover:underline">📤 Upload Data</a>
-        </div>
-
-        <!-- Product Catalog Section -->
-        <section class="bg-white shadow-md rounded-xl p-6 mb-8">
-            <h2 class="text-xl font-semibold mb-4">🛒 Product Catalog</h2>
-            <input type="text" id="productSearch" placeholder="Search products..."
-                class="w-full border rounded-lg p-2 mb-4 focus:ring focus:ring-indigo-200">
-                <div id="productGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 max-h-96 overflow-y-auto pr-2"></div>
-
-        </section>
-
-        <!-- FAQ Section -->
-        <section class="bg-white shadow-md rounded-xl p-6 mb-8">
-            <h2 class="text-xl font-semibold mb-4">📘 FAQs</h2>
-            <input type="text" id="faqSearch" placeholder="Search FAQs..."
-                class="w-full border rounded-lg p-2 mb-4 focus:ring focus:ring-indigo-200">
-                <div id="faqList" class="space-y-3 max-h-80 overflow-y-auto pr-2">
+<body class="bg-gradient-to-br from-gray-50 to-blue-50 min-h-screen">
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
+                <div class="flex items-center gap-3">
+                    <div class="bg-gradient-to-r from-indigo-500 to-purple-600 p-2 rounded-xl">
+                        <i class="fas fa-robot text-white text-xl"></i>
                     </div>
-        </section>
+                    <div>
+                        <h1 class="text-2xl font-bold text-gray-800">AI Product & FAQ Copilot</h1>
+                        <p class="text-sm text-gray-500">Your intelligent assistant for product information</p>
+                    </div>
+                </div>
 
-        <!-- Chat Section -->
-        <section class="bg-white shadow-md rounded-xl p-6">
-            <div class="flex justify-between items-center mb-4">
-                <h2 class="text-xl font-semibold">💬 Chatbot</h2>
-                <button id="toggleMode" class="px-3 py-1 bg-gray-200 rounded-lg text-sm">Mode: Fast ⚡</button>
+                <div class="flex items-center gap-4">
+                    <a href="/upload-data/"
+                        class="flex items-center gap-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 px-4 py-2 rounded-lg transition-all duration-200 font-medium">
+                        <i class="fas fa-upload"></i>
+                        <span>Upload Data</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Left Column: Products & FAQs -->
+            <div class="space-y-8">
+                <!-- Product Catalog Section -->
+                <section class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                    <div class="bg-gradient-to-r from-indigo-500 to-purple-600 p-4">
+                        <div class="flex items-center gap-3">
+                            <i class="fas fa-shopping-bag text-white text-xl"></i>
+                            <h2 class="text-xl font-semibold text-white">Product Catalog</h2>
+                        </div>
+                    </div>
+
+                    <div class="p-5">
+                        <div class="relative mb-4">
+                            <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+                            <input type="text" id="productSearch"
+                                placeholder="Search products by name, notes, or features..."
+                                class="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-200 focus:border-indigo-400 transition">
+                        </div>
+
+                        <div id="productGrid"
+                            class="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-96 overflow-y-auto scrollbar-thin p-1">
+                            <!-- Products will be loaded here -->
+                        </div>
+
+                        <div id="productEmptyState" class="hidden text-center py-8 text-gray-500">
+                            <i class="fas fa-box-open text-4xl mb-3 opacity-50"></i>
+                            <p>No products found. Try adjusting your search or upload product data.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- FAQ Section -->
+                <section class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                    <div class="bg-gradient-to-r from-emerald-500 to-teal-600 p-4">
+                        <div class="flex items-center gap-3">
+                            <i class="fas fa-question-circle text-white text-xl"></i>
+                            <h2 class="text-xl font-semibold text-white">Frequently Asked Questions</h2>
+                        </div>
+                    </div>
+
+                    <div class="p-5">
+                        <div class="relative mb-4">
+                            <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+                            <input type="text" id="faqSearch" placeholder="Search FAQ topics and answers..."
+                                class="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-200 focus:border-emerald-400 transition">
+                        </div>
+
+                        <div id="faqList" class="space-y-3 max-h-80 overflow-y-auto scrollbar-thin p-1">
+                            <!-- FAQs will be loaded here -->
+                        </div>
+
+                        <div id="faqEmptyState" class="hidden text-center py-8 text-gray-500">
+                            <i class="fas fa-comment-dots text-4xl mb-3 opacity-50"></i>
+                            <p>No FAQs found. Try adjusting your search or upload FAQ data.</p>
+                        </div>
+                    </div>
+                </section>
             </div>
 
-            <div id="chatBox" class="border rounded-lg h-80 p-3 overflow-y-auto bg-gray-50 mb-3"></div>
+            <!-- Right Column: Chat -->
+            <section
+                class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden h-fit lg:sticky lg:top-8">
+                <div class="bg-gradient-to-r from-cyan-500 to-blue-600 p-4">
+                    <div class="flex justify-between items-center">
+                        <div class="flex items-center gap-3">
+                            <i class="fas fa-comments text-white text-xl"></i>
+                            <h2 class="text-xl font-semibold text-white">AI Assistant</h2>
+                        </div>
 
-            <div class="flex gap-2">
-                <input type="text" id="userInput" placeholder="Ask a question..."
-                    class="flex-1 border rounded-lg p-2 focus:outline-none focus:ring focus:ring-indigo-200">
-                <button id="sendBtn"
-                    class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg transition">Send</button>
-            </div>
-        </section>
-    </div>
+                        <button id="toggleMode"
+                            class="flex items-center gap-2 bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-lg transition-all duration-200 backdrop-blur-sm">
+                            <i class="fas fa-bolt"></i>
+                            <span>Fast Mode</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="p-5">
+                    <!-- Chat Messages -->
+                    <div id="chatBox"
+                        class="border border-gray-200 rounded-xl h-80 p-4 overflow-y-auto bg-gray-50/50 scrollbar-thin mb-4 space-y-4">
+                        <div class="text-center text-gray-500 py-8">
+                            <i class="fas fa-robot text-4xl mb-3 opacity-50"></i>
+                            <p>Hello! I'm your AI assistant. How can I help you today?</p>
+                        </div>
+                    </div>
+
+                    <!-- Chat Input -->
+                    <div class="flex gap-2">
+                        <div class="flex-1 relative">
+                            <input type="text" id="userInput"
+                                placeholder="Ask about products, features, or anything else..."
+                                class="w-full border border-gray-200 rounded-xl p-4 pr-12 focus:ring-2 focus:ring-blue-200 focus:border-blue-400 transition">
+                            <button id="sendBtn"
+                                class="absolute right-2 top-1/2 transform -translate-y-1/2 bg-blue-500 hover:bg-blue-600 text-white p-2 rounded-lg transition">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
 
     <script>
         // ============ GLOBAL STATE ============
@@ -56,7 +219,7 @@
         let products = [];
         let faqs = [];
 
-        // ============ HELPER ============
+        // ============ HELPER FUNCTIONS ============
         function getCookie(name) {
             let cookieValue = null;
             if (document.cookie && document.cookie !== "") {
@@ -76,11 +239,19 @@
         // ============ TOGGLE MODE ============
         document.getElementById("toggleMode").addEventListener("click", () => {
             chatMode = chatMode === "fast" ? "accurate" : "fast";
-            document.getElementById("toggleMode").innerText =
-                chatMode === "fast" ? "Mode: Fast ⚡" : "Mode: Accurate 🎯";
+            const button = document.getElementById("toggleMode");
+            if (chatMode === "fast") {
+                button.innerHTML = '<i class="fas fa-bolt"></i><span>Fast Mode</span>';
+                button.classList.remove('bg-amber-500', 'hover:bg-amber-600');
+                button.classList.add('bg-white/20', 'hover:bg-white/30');
+            } else {
+                button.innerHTML = '<i class="fas fa-bullseye"></i><span>Accurate Mode</span>';
+                button.classList.remove('bg-white/20', 'hover:bg-white/30');
+                button.classList.add('bg-amber-500', 'hover:bg-amber-600');
+            }
         });
 
-        // ============ CHAT ============
+        // ============ CHAT FUNCTIONALITY ============
         const chatBox = document.getElementById("chatBox");
         document.getElementById("sendBtn").addEventListener("click", sendMessage);
         document.getElementById("userInput").addEventListener("keypress", e => {
@@ -92,106 +263,203 @@
             const text = userInput.value.trim();
             if (!text) return;
 
-            chatBox.innerHTML += `<div class="text-blue-600 mb-2">🧍 You: ${text}</div>`;
+            // Clear initial message if it exists
+            if (chatBox.children.length === 1 && chatBox.children[0].classList.contains('text-center')) {
+                chatBox.innerHTML = '';
+            }
+
+            // Add user message
+            const userMessage = document.createElement('div');
+            userMessage.className = 'fade-in flex justify-end';
+            userMessage.innerHTML = `
+                <div class="bg-blue-500 text-white chat-bubble-user max-w-[80%] p-3 shadow-sm">
+                    <div class="font-medium">${text}</div>
+                </div>
+            `;
+            chatBox.appendChild(userMessage);
+
             userInput.value = "";
-            chatBox.innerHTML += `<div class="text-gray-400 mb-2">🤖 Thinking...</div>`;
+
+            // Add loading indicator
+            const loadingMessage = document.createElement('div');
+            loadingMessage.className = 'fade-in flex justify-start';
+            loadingMessage.innerHTML = `
+                <div class="bg-gray-100 text-gray-700 chat-bubble-bot max-w-[80%] p-3 shadow-sm">
+                    <div class="flex items-center gap-2">
+                        <div class="w-2 h-2 bg-gray-400 rounded-full animate-pulse"></div>
+                        <div class="w-2 h-2 bg-gray-400 rounded-full animate-pulse"></div>
+                        <div class="w-2 h-2 bg-gray-400 rounded-full animate-pulse"></div>
+                    </div>
+                </div>
+            `;
+            chatBox.appendChild(loadingMessage);
             chatBox.scrollTop = chatBox.scrollHeight;
 
             try {
-                const res = await fetch("/chat/", {
+                const res = await fetch("/api/chat/", {
                     method: "POST",
-                    headers: { "Content-Type": "application/json", "X-CSRFToken": csrftoken },
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": csrftoken
+                    },
                     body: JSON.stringify({
                         messages: [{ role: "user", content: text }],
                         mode: chatMode
                     })
                 });
+
                 const data = await res.json();
-                chatBox.lastChild.remove();
-                chatBox.innerHTML += `<div class="text-green-700 mb-1">🤖 Bot: ${data.answer || "No response"}</div>`;
-                if (data.citations) {
-                    chatBox.innerHTML += `<div class="text-gray-500 text-sm mb-2">📎 Cited: ${data.citations.join(", ")}</div>`;
-                }
+                loadingMessage.remove();
+
+                // Add bot response
+                const botMessage = document.createElement('div');
+                botMessage.className = 'fade-in flex justify-start';
+                botMessage.innerHTML = `
+                    <div class="bg-white border border-gray-200 chat-bubble-bot max-w-[80%] p-4 shadow-sm">
+                        <div class="text-gray-800 mb-2">${data.answer || "I'm sorry, I couldn't process your request."}</div>
+                        ${data.citations && data.citations.length > 0 ?
+                        `<div class="mt-3 pt-3 border-t border-gray-100">
+                                <div class="flex items-center gap-2 text-sm text-gray-500 mb-1">
+                                    <i class="fas fa-link"></i>
+                                    <span>Sources:</span>
+                                </div>
+                                <div class="flex flex-wrap gap-1">
+                                    ${data.citations.map(citation =>
+                            `<span class="bg-gray-100 text-gray-700 px-2 py-1 rounded-md text-xs">${citation}</span>`
+                        ).join('')}
+                                </div>
+                            </div>` : ''
+                    }
+                    </div>
+                `;
+                chatBox.appendChild(botMessage);
             } catch (err) {
-                chatBox.innerHTML += `<div class="text-red-600 mb-2">⚠️ Error: ${err.message}</div>`;
+                loadingMessage.remove();
+                const errorMessage = document.createElement('div');
+                errorMessage.className = 'fade-in flex justify-start';
+                errorMessage.innerHTML = `
+                    <div class="bg-red-50 border border-red-200 text-red-700 chat-bubble-bot max-w-[80%] p-3 shadow-sm">
+                        <div class="flex items-center gap-2">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <span>Error: ${err.message}</span>
+                        </div>
+                    </div>
+                `;
+                chatBox.appendChild(errorMessage);
             }
+
             chatBox.scrollTop = chatBox.scrollHeight;
         }
 
+        // ============ DATA LOADING & RENDERING ============
         async function loadData() {
-                try {
-                    const res = await fetch("/api/get-data/");
-                    const data = await res.json();
-                    products = data.products || [];
-                    faqs = data.faqs || [];
+            try {
+                const res = await fetch("/api/get-data/");
+                const data = await res.json();
+                products = data.products || [];
+                faqs = data.faqs || [];
 
-                    renderProducts(products);
-                    renderFaqs(faqs.map(f => ({
-                        question: f.heading,
-                        answer: f.text
-                    })));
-                } catch (err) {
-                    console.error("Error loading data:", err);
-                }
+                renderProducts(products);
+                renderFaqs(faqs.map(f => ({
+                    question: f.heading,
+                    answer: f.text
+                })));
+            } catch (err) {
+                console.error("Error loading data:", err);
+                // Show empty states
+                document.getElementById('productEmptyState').classList.remove('hidden');
+                document.getElementById('faqEmptyState').classList.remove('hidden');
             }
-
-            loadData();
+        }
 
         function renderProducts(items) {
             const grid = document.getElementById("productGrid");
+            const emptyState = document.getElementById("productEmptyState");
+
+            if (items.length === 0) {
+                grid.innerHTML = '';
+                emptyState.classList.remove('hidden');
+                return;
+            }
+
+            emptyState.classList.add('hidden');
             grid.innerHTML = "";
+
             items.forEach(p => {
                 const card = document.createElement("div");
-                card.className = "p-4 border rounded-lg hover:shadow-lg transition";
+                card.className = "fade-in bg-white border border-gray-200 rounded-xl p-4 hover:shadow-md transition-all duration-200 cursor-pointer";
                 card.innerHTML = `
-          <h3 class="font-semibold text-lg">${p.name}</h3>
-          <p class="text-sm text-gray-500">${p.notes}</p>
-          <p class="text-sm text-gray-600 mt-1">💰 ${p.price} | ⏱️ ${p.longevity}</p>
-        `;
+                    <div class="flex justify-between items-start mb-2">
+                        <h3 class="font-semibold text-gray-800 truncate">${p.name}</h3>
+                        <span class="bg-indigo-100 text-indigo-800 text-xs px-2 py-1 rounded-full">$${p.price}</span>
+                    </div>
+                    <p class="text-sm text-gray-600 mb-3 line-clamp-2">${p.notes}</p>
+                    <div class="flex justify-between text-xs text-gray-500">
+                        <span class="flex items-center gap-1">
+                            <i class="fas fa-clock"></i>
+                            ${p.longevity}
+                        </span>
+                        <span class="flex items-center gap-1">
+                            <i class="fas fa-star text-yellow-500"></i>
+                            ${p.popularity || 'N/A'}
+                        </span>
+                    </div>
+                `;
                 grid.appendChild(card);
             });
         }
 
-        document.getElementById("productSearch").addEventListener("input", (e) => {
-            const q = e.target.value.toLowerCase();
-            renderProducts(products.filter(p => p.name.toLowerCase().includes(q)));
-        });
-
-        // ============ FAQ MOCK VIEW ============
-        async function loadData() {
-                try {
-                    const res = await fetch("/api/get-data/");
-                    const data = await res.json();
-                    products = data.products || [];
-                    faqs = data.faqs || [];
-
-                    renderProducts(products);
-                    renderFaqs(faqs.map(f => ({
-                        question: f.heading,
-                        answer: f.text
-                    })));
-                } catch (err) {
-                    console.error("Error loading data:", err);
-                }
-            }
-
-            loadData();
-
         function renderFaqs(items) {
             const list = document.getElementById("faqList");
+            const emptyState = document.getElementById("faqEmptyState");
+
+            if (items.length === 0) {
+                list.innerHTML = '';
+                emptyState.classList.remove('hidden');
+                return;
+            }
+
+            emptyState.classList.add('hidden');
             list.innerHTML = "";
+
             items.forEach(f => {
                 const div = document.createElement("div");
-                div.className = "p-3 border rounded-lg bg-gray-50 hover:bg-gray-100 transition";
-                div.innerHTML = `<strong>${f.question}</strong><br><span class="text-gray-600 text-sm">${f.answer}</span>`;
+                div.className = "fade-in bg-gray-50 border border-gray-200 rounded-xl p-4 hover:bg-gray-100 transition-all duration-200 cursor-pointer";
+                div.innerHTML = `
+                    <div class="flex items-start gap-3">
+                        <i class="fas fa-question-circle text-teal-500 mt-1 flex-shrink-0"></i>
+                        <div>
+                            <h4 class="font-medium text-gray-800 mb-1">${f.question}</h4>
+                            <p class="text-gray-600 text-sm line-clamp-2">${f.answer}</p>
+                        </div>
+                    </div>
+                `;
                 list.appendChild(div);
             });
         }
 
+        // ============ SEARCH FUNCTIONALITY ============
+        document.getElementById("productSearch").addEventListener("input", (e) => {
+            const q = e.target.value.toLowerCase();
+            const filtered = products.filter(p =>
+                p.name.toLowerCase().includes(q) ||
+                p.notes.toLowerCase().includes(q) ||
+                (p.accords && p.accords.toLowerCase().includes(q))
+            );
+            renderProducts(filtered);
+        });
+
         document.getElementById("faqSearch").addEventListener("input", (e) => {
             const q = e.target.value.toLowerCase();
-            renderFaqs(faqs.filter(f => f.question.toLowerCase().includes(q)));
+            const filtered = faqs.filter(f =>
+                f.question.toLowerCase().includes(q) ||
+                f.answer.toLowerCase().includes(q)
+            );
+            renderFaqs(filtered);
         });
+
+        // ============ INITIALIZATION ============
+        document.addEventListener('DOMContentLoaded', loadData);
     </script>
 </body>
 
