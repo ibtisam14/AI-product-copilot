@@ -21,7 +21,18 @@ def home(request):
     return render(request, "index.html")
 
 def upload_page(request):
-    return render(request, "upload.html")
+    return render(request, "upload.html") 
+
+# views.py
+@method_decorator(csrf_exempt, name="dispatch")
+class GetDataView(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def get(self, request):
+        prods = list(Product.objects.all().values())
+        faqs = list(FAQChunk.objects.all().values("id", "heading", "text"))
+        return Response({"products": prods, "faqs": faqs})
+
 
 
 # Choose adapter: in production change to OpenAIAdapter if OPENAI_API_KEY set

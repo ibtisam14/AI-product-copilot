@@ -116,12 +116,24 @@
             chatBox.scrollTop = chatBox.scrollHeight;
         }
 
-        // ============ PRODUCT MOCK VIEW ============
-        products = [
-            { id: 1, name: "Rise Again", price: "$45", notes: "Citrus, floral", longevity: "8h+" },
-            { id: 2, name: "Lost Words", price: "$60", notes: "Woody amber", longevity: "10h+" },
-        ];
-        renderProducts(products);
+        async function loadData() {
+                try {
+                    const res = await fetch("/api/get-data/");
+                    const data = await res.json();
+                    products = data.products || [];
+                    faqs = data.faqs || [];
+
+                    renderProducts(products);
+                    renderFaqs(faqs.map(f => ({
+                        question: f.heading,
+                        answer: f.text
+                    })));
+                } catch (err) {
+                    console.error("Error loading data:", err);
+                }
+            }
+
+            loadData();
 
         function renderProducts(items) {
             const grid = document.getElementById("productGrid");
@@ -144,11 +156,24 @@
         });
 
         // ============ FAQ MOCK VIEW ============
-        faqs = [
-            { id: "faq_1", question: "How long does the perfume last?", answer: "Our perfumes last 8-10 hours on skin." },
-            { id: "faq_2", question: "Are your perfumes unisex?", answer: "Yes, all perfumes are designed for everyone." },
-        ];
-        renderFaqs(faqs);
+        async function loadData() {
+                try {
+                    const res = await fetch("/api/get-data/");
+                    const data = await res.json();
+                    products = data.products || [];
+                    faqs = data.faqs || [];
+
+                    renderProducts(products);
+                    renderFaqs(faqs.map(f => ({
+                        question: f.heading,
+                        answer: f.text
+                    })));
+                } catch (err) {
+                    console.error("Error loading data:", err);
+                }
+            }
+
+            loadData();
 
         function renderFaqs(items) {
             const list = document.getElementById("faqList");
