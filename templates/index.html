@@ -19,7 +19,8 @@
             <h2 class="text-xl font-semibold mb-4">🛒 Product Catalog</h2>
             <input type="text" id="productSearch" placeholder="Search products..."
                 class="w-full border rounded-lg p-2 mb-4 focus:ring focus:ring-indigo-200">
-            <div id="productGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+                <div id="productGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 max-h-96 overflow-y-auto pr-2"></div>
+
         </section>
 
         <!-- FAQ Section -->
@@ -27,7 +28,8 @@
             <h2 class="text-xl font-semibold mb-4">📘 FAQs</h2>
             <input type="text" id="faqSearch" placeholder="Search FAQs..."
                 class="w-full border rounded-lg p-2 mb-4 focus:ring focus:ring-indigo-200">
-            <div id="faqList" class="space-y-3"></div>
+                <div id="faqList" class="space-y-3 max-h-80 overflow-y-auto pr-2">
+                    </div>
         </section>
 
         <!-- Chat Section -->
