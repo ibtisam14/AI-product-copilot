@@ -1,177 +1,117 @@
 # Smartwatch X
-## Does it support Android?
-Yes, it supports both Android and iOS.
+## Does it support Android and iOS?
+Yes, it works seamlessly with both Android and iOS devices.
 
 ## Is it waterproof?
-It is water resistant up to 50 meters.
+Yes, it’s water resistant up to 50 meters.
 
 ## How long does the battery last?
-Up to 8 hours with continuous use.
+Up to 8 hours with continuous health tracking.
 
 ---
 
 # Fitness Band Pro
-## Can it track sleep?
-Yes, it includes automatic sleep tracking.
+## Can it track sleep and calories?
+Yes, it tracks sleep quality, steps, and calorie burn automatically.
 
-## Does it monitor heart rate?
-Yes, it tracks your heart rate 24/7.
+## Does it have heart rate monitoring?
+Yes, it measures your heart rate 24/7.
 
-## Is it compatible with iPhone?
-Yes, it works with both Android and iOS devices.
+## Can I use it without a phone?
+It stores limited data and syncs later when connected.
 
 ---
 
 # Wireless Earbuds Z
-## How long does the battery last?
-Up to 12 hours on a full charge.
+## Do they have noise cancellation?
+Yes, they feature advanced active noise cancellation.
 
-## Do they support noise cancellation?
-Yes, they feature advanced noise cancellation.
+## How long can I use them on one charge?
+Up to 12 hours of playback.
 
-## Are they sweatproof?
-Yes, perfect for workouts and outdoor use.
-
----
-
-# 4K Action Camera
-## Is it waterproof?
-Yes, up to 30 meters with the included case.
-
-## Does it record 4K videos?
-Yes, it records in true 4K at 60fps.
-
-## Can I connect it via Wi-Fi?
-Yes, it supports Wi-Fi for quick sharing and control.
+## Are they water resistant?
+Yes, rated IPX5 — suitable for workouts and rain.
 
 ---
 
-# Portable Speaker Boom
+# 4K Action Camera Pro
+## Does it record in 4K?
+Yes, 4K UHD at 60fps with image stabilization.
+
 ## Is it waterproof?
-Yes, it has an IPX7 waterproof rating.
+Yes, up to 30 meters with the protective case.
 
-## How long does the battery last?
-Up to 20 hours of continuous playtime.
-
-## Does it support Bluetooth 5.0?
-Yes, for fast and stable wireless connection.
+## Can I control it via Wi-Fi?
+Yes, you can preview and share via its companion app.
 
 ---
 
 # Smartphone Alpha
 ## Does it support 5G?
-Yes, it supports full 5G connectivity.
+Yes, full 5G network compatibility.
 
 ## What is the display refresh rate?
-It has a smooth 120Hz AMOLED display.
+120Hz AMOLED display for smooth visuals.
 
 ## How good is the camera?
-The 108MP triple camera system takes stunning photos.
+It has a 108MP triple-lens system for professional-grade photos.
 
 ---
 
 # Laptop Pro 15
 ## What processor does it use?
-It comes with the latest Intel i7 processor.
+Equipped with the latest Intel i7 CPU.
 
 ## How much RAM does it have?
-It includes 16GB RAM, expandable to 32GB.
+Comes with 16GB RAM (expandable to 32GB).
 
-## Is it suitable for gaming?
-Yes, with its dedicated graphics card and cooling system.
+## Is it good for gaming?
+Yes, with its dedicated graphics and cooling system.
 
 ---
 
 # Wireless Keyboard Slim
-## Is it rechargeable?
-Yes, via USB-C charging.
-
 ## Can it connect to multiple devices?
-Yes, it can pair with up to 3 devices.
+Yes, it supports up to 3 paired devices via Bluetooth.
+
+## Is it rechargeable?
+Yes, it charges via USB-C and lasts up to 3 months per charge.
 
 ## Is it quiet?
-Yes, it has silent keys perfect for office use.
+Yes, designed for silent typing.
 
 ---
 
 # Gaming Mouse Ultra
 ## Does it have RGB lighting?
-Yes, fully customizable RGB zones.
+Yes, fully customizable RGB lighting zones.
 
-## How many DPI settings does it support?
-Up to 16,000 DPI for precision control.
+## What is its maximum DPI?
+Up to 16,000 DPI for high precision.
 
-## Is it wired or wireless?
-Wireless, with ultra-low latency.
-
----
-
-# Mechanical Keyboard Max
-## What switches does it use?
-Uses premium mechanical switches for durability.
-
-## Does it have backlighting?
-Yes, with customizable RGB backlighting.
-
-## Is it compatible with Mac?
-Yes, fully compatible with both Mac and Windows.
+## Is it wireless?
+Yes, with ultra-low latency and fast recharging.
 
 ---
 
 # Noise Cancelling Headphones
-## Do they have active noise cancellation?
-Yes, with adaptive ANC technology.
+## Do they support active noise cancellation?
+Yes, adaptive ANC adjusts based on your surroundings.
 
 ## How long does the battery last?
-Up to 36 hours per charge.
+Up to 36 hours on a single charge.
 
-## Can I use them wired?
-Yes, with the included 3.5mm cable.
+## Can I use them with a cable?
+Yes, includes a 3.5mm cable for wired use.
 
 ---
 
 # Smart Home Hub
-## What devices can it control?
-It works with smart lights, plugs, thermostats, and cameras.
+## What can it control?
+Smart lights, thermostats, plugs, and cameras.
 
-## Does it require Wi-Fi?
-Yes, Wi-Fi is needed for remote control and automation.
+## Does it need Wi-Fi?
+Yes, Wi-Fi is required for automation and remote access.
 
-## Can it work with voice assistants?
-Yes, compatible with Alexa and Google Assistant.
-
----
-
-# Drone Air Pro
-## Does it have GPS?
-Yes, with precise GPS and return-to-home feature.
-
-## How long can it fly?
-Up to 30 minutes per battery charge.
-
-## Can it record in 4K?
-Yes, 4K UHD camera with image stabilization.
-
----
-
-# Electric Toothbrush X
-## How long does the battery last?
-Up to 3 weeks on a single charge.
-
-## Does it have multiple cleaning modes?
-Yes, it offers 4 modes for deep and gentle cleaning.
-
-## Is it waterproof?
-Yes, it’s fully waterproof and safe for bathroom use.
-
----
-
-# Smart Lamp Glow
-## Can I control it with my phone?
-Yes, via mobile app or voice assistant.
-
-## Does it support color changing?
-Yes, 16 million color options available.
-
-## Can it be scheduled?
-Yes, you can set timers or routines easily.
+## Can I use voice commands?
+Yes, works with Alexa, Google Assistant, and Siri.

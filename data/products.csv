@@ -1,16 +1,11 @@
 id,name,notes,accords,price,longevity,season,imageUrl,popularity
-1,Smartwatch X,Tracks steps and heart rate,Tech,199.99,8h,All,https://example.com/watch.jpg,4.8
-2,Fitness Band Pro,Monitors sleep and calories,Health,99.99,10h,Summer,https://example.com/band.jpg,4.5
-3,Wireless Earbuds Z,High-quality sound and noise cancellation,Audio,149.99,12h,All,https://example.com/earbuds.jpg,4.7
-4,4K Action Camera,Records ultra HD videos,Photography,299.99,15h,All,https://example.com/camera.jpg,4.6
-5,Portable Speaker Boom,Waterproof and loud bass,Audio,89.99,20h,Summer,https://example.com/speaker.jpg,4.4
-6,Smartphone Alpha,High-end display and battery life,Tech,799.99,24h,All,https://example.com/smartphone.jpg,4.9
-7,Laptop Pro 15,Lightweight and powerful,Computing,1299.99,48h,All,https://example.com/laptop.jpg,4.8
-8,Wireless Keyboard Slim,Silent keys and long battery,Accessories,59.99,72h,All,https://example.com/keyboard.jpg,4.3
-9,Gaming Mouse Ultra,Customizable RGB and DPI settings,Gaming,79.99,100h,Winter,https://example.com/mouse.jpg,4.6
-10,Mechanical Keyboard Max,Premium switches and backlight,Gaming,139.99,120h,All,https://example.com/mechkeyboard.jpg,4.7
-11,Noise Cancelling Headphones,Immersive sound and comfort,Audio,199.99,36h,Winter,https://example.com/headphones.jpg,4.9
-12,Smart Home Hub,Controls all smart devices,Home,149.99,500h,All,https://example.com/smarthub.jpg,4.5
-13,Drone Air Pro,4K camera and GPS stability,Gadgets,499.99,60h,Summer,https://example.com/drone.jpg,4.7
-14,Electric Toothbrush X,Cleans teeth efficiently,Health,59.99,48h,All,https://example.com/toothbrush.jpg,4.4
-15,Smart Lamp Glow,Adjustable brightness and colors,Home,39.99,100h,Winter,https://example.com/lamp.jpg,4.6
+1,Smartwatch X,"Tracks steps, sleep, and heart rate",Tech,199.99,8h,All,https://example.com/smartwatch.jpg,4.8
+2,Fitness Band Pro,Monitors activity and calories,Tech,99.99,10h,Summer,https://example.com/fitnessband.jpg,4.6
+3,Wireless Earbuds Z,Crystal-clear sound with ANC,Tech,149.99,12h,All,https://example.com/earbuds.jpg,4.7
+4,4K Action Camera Pro,Records UHD video and supports Wi-Fi,Tech,299.99,15h,All,https://example.com/actioncamera.jpg,4.6
+5,Smartphone Alpha,Flagship display and powerful processor,Tech,799.99,24h,All,https://example.com/smartphone.jpg,4.9
+6,Laptop Pro 15,Lightweight laptop with Intel i7,Tech,1299.99,48h,All,https://example.com/laptop.jpg,4.8
+7,Wireless Keyboard Slim,Silent keys with multi-device pairing,Tech,59.99,72h,All,https://example.com/keyboard.jpg,4.3
+8,Gaming Mouse Ultra,RGB lighting with 16000 DPI,Tech,79.99,100h,Winter,https://example.com/mouse.jpg,4.5
+9,Noise Cancelling Headphones,Adaptive ANC and long battery,Tech,199.99,36h,All,https://example.com/headphones.jpg,4.9
+10,Smart Home Hub,Controls all smart gadgets at once,Tech,149.99,500h,All,https://example.com/smarthub.jpg,4.6
