@@ -2,7 +2,6 @@ import json
 import hashlib
 from django.conf import settings
 
-
 # ----------------------------
 # 🧩 Mock Adapter (for local/demo mode)
 # ----------------------------
@@ -43,35 +42,63 @@ class MockAdapter:
 # ----------------------------
 class OpenAIAdapter:
     def __init__(self, api_key):
-        from openai import OpenAI
-        self.client = OpenAI(api_key=api_key)
+        # Try to import OpenAI client in a flexible way.
+        try:
+            from openai import OpenAI as OpenAIClient
+            self.client = OpenAIClient(api_key=api_key)
+            self.client_type = "openai_sdk_object"
+        except Exception:
+            try:
+                import openai
+                openai.api_key = api_key
+                self.client = openai
+                self.client_type = "openai_legacy"
+            except Exception:
+                raise
 
     def get_embeddings(self, texts):
-        """Robust embedding getter compatible with OpenAI & OpenRouter"""
+        """Robust embedding getter compatible with multiple OpenAI SDK shapes"""
         try:
-            response = self.client.embeddings.create(
-                model="text-embedding-3-small",
-                input=texts
-            )
+            if isinstance(texts, str):
+                texts = [texts]
 
-            # 🧠 Handle all possible response shapes
-            if isinstance(response, str):
-                # JSON string
-                data = json.loads(response)
-                embeddings = [item["embedding"] for item in data.get("data", [])]
-            elif hasattr(response, "data"):
-                # OpenAI SDK object
-                embeddings = [item.embedding for item in response.data]
-            elif isinstance(response, dict):
-                # Already a dict from some wrapper
-                embeddings = [item["embedding"] for item in response.get("data", [])]
+            # Call embeddings API
+            if self.client_type == "openai_sdk_object":
+                response = self.client.embeddings.create(
+                    model="text-embedding-3-small",
+                    input=texts
+                )
             else:
-                print(f"⚠️ Unknown response type: {type(response)}")
-                embeddings = []
+                response = self.client.Embedding.create(
+                    model="text-embedding-3-small",
+                    input=texts
+                )
 
-            # ✅ Guarantee non-empty embeddings (fallback to deterministic mock)
+            # ✅ Handle both dict and object-like responses
+            if isinstance(response, dict):
+                data = response.get("data", [])
+            elif isinstance(response, str):
+                try:
+                    parsed = json.loads(response)
+                    data = parsed.get("data", [])
+                except Exception:
+                    data = []
+            else:
+                try:
+                    data = getattr(response, "data", [])
+                except Exception:
+                    data = []
+
+            embeddings = []
+            for item in data:
+                if isinstance(item, dict):
+                    emb = item.get("embedding")
+                else:
+                    emb = getattr(item, "embedding", None)
+                if emb is not None:
+                    embeddings.append([float(x) for x in list(emb)])
+
             if not embeddings:
-                print("⚠️ Empty embedding list — using fallback vectors.")
                 return self._get_fallback_embeddings(texts)
 
             return embeddings
@@ -91,7 +118,7 @@ class OpenAIAdapter:
         return vectors
 
     def get_completion(self, messages, mode, context_snippets):
-        """Chat completion handler"""
+        """Chat completion handler with improved prompt for price/hours/rating"""
         if mode == "fast":
             model_name = "gpt-3.5-turbo"
             temperature = 0.7
@@ -99,38 +126,67 @@ class OpenAIAdapter:
             model_name = "gpt-3.5-turbo"
             temperature = 0.2
 
-        base_url = getattr(settings, "OPENAI_BASE_URL", "https://api.openai.com/v1")
+        base_url = getattr(settings, "OPENAI_BASE_URL", "https://api.openai.com/v1").strip()
         if "openrouter.ai" in base_url:
             model_name = "openai/gpt-3.5-turbo"
 
-        # Prepare system + context
-        context_text = "\n\n".join([f"[{s['id']}] {s['text']}" for s in context_snippets])
+        # 🔥 System Prompt — ensures structured answers
         system_prompt = (
-            "You are a helpful assistant. "
-            "Answer using ONLY the provided context below. "
-            "If the answer is not found, say 'I don't know based on the provided info.'\n\n"
-            f"Context:\n{context_text}"
+            "You are a precise product assistant. Answer the user's question using ONLY the context below.\n"
+            "- If the context contains a **price**, state it exactly (e.g., $99.99).\n"
+            "- If asked about **battery life**, report the number of hours (e.g., 12 hours).\n"
+            "- If asked about **rating**, give the numerical score (e.g., 4.8).\n"
+            "- If the answer is not in the context, say: \"I don't know based on the provided info.\"\n"
+            "- Always end with: Sources: [list of source IDs].\n\n"
+            "Context:\n"
         )
 
-        full_messages = [{"role": "system", "content": system_prompt}] + messages
+        context_text = "\n\n".join([f"[{s['id']}]: {s['text']}" for s in context_snippets])
+        full_context = system_prompt + context_text
+
+        # Combine user + system messages
+        user_query = messages[-1]["content"] if messages else "Hello"
+        enhanced_messages = [
+            {"role": "system", "content": full_context},
+            {"role": "user", "content": user_query}
+        ]
 
         try:
-            response = self.client.chat.completions.create(
-                model=model_name,
-                messages=full_messages,
-                temperature=temperature,
-                max_tokens=500
-            )
-
-            # Parse both OpenAI and JSON-string responses
-            if isinstance(response, str):
-                data = json.loads(response)
-                answer = data["choices"][0]["message"]["content"].strip()
+            # OpenAI SDK object path
+            if self.client_type == "openai_sdk_object":
+                response = self.client.chat.completions.create(
+                    model=model_name,
+                    messages=enhanced_messages,
+                    temperature=temperature,
+                    max_tokens=300
+                )
+                answer = None
+                if hasattr(response, "choices"):
+                    ch = getattr(response, "choices", None)
+                    if ch and len(ch) > 0:
+                        msg = getattr(ch[0], "message", None)
+                        if isinstance(msg, dict):
+                            answer = msg.get("content")
+                        elif hasattr(msg, "content"):
+                            answer = msg.content
+                if not answer:
+                    answer = "I don't know based on the provided info."
             else:
-                answer = response.choices[0].message.content.strip()
+                # Legacy openai
+                response = self.client.ChatCompletion.create(
+                    model=model_name,
+                    messages=enhanced_messages,
+                    temperature=temperature,
+                    max_tokens=300
+                )
+                choices = response.get("choices", [])
+                answer = choices[0]["message"]["content"].strip() if choices else "I don't know based on the provided info."
 
             citations = [s["id"] for s in context_snippets[:3]]
-            return {"answer": answer, "citations": citations}
+            return {
+                "answer": answer.strip() if isinstance(answer, str) else str(answer),
+                "citations": citations
+            }
 
         except Exception as e:
             print(f"❌ Error getting completion: {e}")
@@ -139,6 +195,6 @@ class OpenAIAdapter:
     def _get_fallback_completion(self, messages, mode, context_snippets):
         """Fallback to mock completion"""
         snippet_ids = [s.get("id") for s in context_snippets]
-        answer = "Mock fallback: I used provided snippets."
+        answer = "Fallback: I used the provided context snippets."
         citations = snippet_ids[:3]
         return {"answer": answer, "citations": citations}

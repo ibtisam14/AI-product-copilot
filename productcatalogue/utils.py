@@ -28,6 +28,21 @@ def chunk_faq_markdown(md_text: str, approx_k=1200):
         chunks.append((cur_heading, "\n".join(cur).strip()))
     return chunks
 
+def _coerce_vector_to_list(vec):
+    """
+    Ensure embedding vector is a plain Python list of floats (JSON serializable).
+    Accepts list, tuple, numpy array.
+    """
+    try:
+        arr = np.array(vec, dtype=float).reshape(-1)
+        return [float(x) for x in arr.tolist()]
+    except Exception:
+        # Last-resort fallback: try to iterate
+        try:
+            return [float(x) for x in list(vec)]
+        except Exception:
+            return []
+
 def store_product_and_embeddings(products: List[Dict], vectors: List[List[float]]):
     """
     Store product info + embedding vectors in the database.
@@ -63,6 +78,8 @@ def store_product_and_embeddings(products: List[Dict], vectors: List[List[float]
                 f"Recommended season: {p.season}."
             )
 
+            # Ensure vector is a JSON-serializable list of floats
+            clean_vec = _coerce_vector_to_list(vec)
             ev_id = f"p_{p.id}"
             EmbeddingVector.objects.update_or_create(
                 id=ev_id,
@@ -70,7 +87,7 @@ def store_product_and_embeddings(products: List[Dict], vectors: List[List[float]
                     'source': 'product',
                     'source_obj_id': p.id,
                     'text': stored_text,
-                    'vector': json.dumps(vec)
+                    'vector': json.dumps(clean_vec)
                 }
             )
 
@@ -90,6 +107,7 @@ def store_faq_chunks_and_embeddings(chunks: List[Dict], vectors: List[List[float
                     'text': chunk.get('text','')
                 }
             )
+            clean_vec = _coerce_vector_to_list(vec)
             # Save embedding
             EmbeddingVector.objects.update_or_create(
                 id=f"f_{fid}",
@@ -97,7 +115,7 @@ def store_faq_chunks_and_embeddings(chunks: List[Dict], vectors: List[List[float
                     'source': 'faq',
                     'source_obj_id': fid,
                     'text': chunk.get('text',''),
-                    'vector': json.dumps(vec)
+                    'vector': json.dumps(clean_vec)
                 }
             )
 
@@ -108,7 +126,15 @@ def load_all_vectors():
     from .models import EmbeddingVector
     items = []
     for ev in EmbeddingVector.objects.all():
-        vec = np.array(json.loads(ev.vector), dtype=float)
+        try:
+            vec_list = json.loads(ev.vector)
+            vec = np.array(vec_list, dtype=float)
+        except Exception:
+            # If stored incorrectly, try fallback parse
+            try:
+                vec = np.array(ev.vector, dtype=float)
+            except Exception:
+                continue
         items.append({
             'id': ev.id,
             'source': ev.source,
@@ -118,10 +144,9 @@ def load_all_vectors():
         })
     return items
 
-def retrieve_top_k(query_vector, k=8, threshold=0.45):
+def retrieve_top_k(query_vector, k=8, threshold=0.35):
     """
     Returns top_k embeddings above similarity threshold.
-    Slightly lowered threshold (0.45) to catch more relevant product matches.
     """
     items = load_all_vectors()
     if not items:

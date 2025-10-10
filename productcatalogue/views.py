@@ -164,6 +164,8 @@ class ChatView(APIView):
 
         query_text = messages[-1]["content"]
         vectors = adapter.get_embeddings([query_text])
+        if not vectors:
+            return Response({"error": "Failed to compute query embedding"}, status=500)
         query_vec = vectors[0]
 
         # Retrieve top relevant embeddings (products + FAQs)
