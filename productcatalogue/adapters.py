@@ -2,6 +2,7 @@ import json
 import hashlib
 from django.conf import settings
 
+
 class MockAdapter:
     """A simple mock adapter for testing or demo use."""
 
@@ -32,18 +33,23 @@ class MockAdapter:
 
         return {"answer": answer, "citations": citations}
 
+
 class OpenAIAdapter:
     def __init__(self, api_key):
         try:
             from openai import OpenAI as OpenAIClient
-            self.client = OpenAIClient(api_key=api_key)
+            base_url = getattr(settings, "OPENAI_BASE_URL", "https://api.openai.com/v1")
+            self.client = OpenAIClient(api_key=api_key, base_url=base_url)
             self.client_type = "openai_sdk_object"
+            print(f"✅ Connected to OpenAI client with base_url={base_url}")
         except Exception:
             try:
                 import openai
                 openai.api_key = api_key
+                openai.api_base = getattr(settings, "OPENAI_BASE_URL", "https://api.openai.com/v1")
                 self.client = openai
                 self.client_type = "openai_legacy"
+                print(f"✅ Connected using legacy OpenAI client with base_url={openai.api_base}")
             except Exception:
                 raise
 
@@ -64,6 +70,7 @@ class OpenAIAdapter:
                     input=texts
                 )
 
+            # Normalize response
             if isinstance(response, dict):
                 data = response.get("data", [])
             elif isinstance(response, str):
