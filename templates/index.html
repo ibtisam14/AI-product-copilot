@@ -353,24 +353,24 @@
 
         // ============ DATA LOADING & RENDERING ============
         async function loadData() {
-            try {
-                const res = await fetch("/api/get-data/");
-                const data = await res.json();
-                products = data.products || [];
-                faqs = data.faqs || [];
+                try {
+                    const res = await fetch("/api/get-data/");
+                    const data = await res.json();
 
-                renderProducts(products);
-                renderFaqs(faqs.map(f => ({
-                    question: f.heading,
-                    answer: f.text
-                })));
-            } catch (err) {
-                console.error("Error loading data:", err);
-                // Show empty states
-                document.getElementById('productEmptyState').classList.remove('hidden');
-                document.getElementById('faqEmptyState').classList.remove('hidden');
+                    products = data.products || [];
+                    faqs = (data.faqs || []).map(f => ({
+                        question: f.heading,
+                        answer: f.text
+                    }));
+
+                    renderProducts(products);
+                    renderFaqs(faqs);
+                } catch (err) {
+                    console.error("Error loading data:", err);
+                    document.getElementById('productEmptyState').classList.remove('hidden');
+                    document.getElementById('faqEmptyState').classList.remove('hidden');
+                }
             }
-        }
 
         function renderProducts(items) {
             const grid = document.getElementById("productGrid");
