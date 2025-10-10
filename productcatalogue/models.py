@@ -35,7 +35,7 @@ class EmbeddingVector(models.Model):
     source = models.CharField(max_length=20, choices=SOURCE_CHOICES)
     source_obj_id = models.CharField(max_length=100)  # product.id or faq.id
     text = models.TextField()
-    vector = models.TextField()  # store JSON list of floats
+    vector = models.TextField() 
     created_at = models.DateTimeField(default=timezone.now)
 
     def __str__(self):

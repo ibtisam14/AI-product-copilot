@@ -2,9 +2,6 @@ import json
 import hashlib
 from django.conf import settings
 
-# ----------------------------
-# 🧩 Mock Adapter (for local/demo mode)
-# ----------------------------
 class MockAdapter:
     """A simple mock adapter for testing or demo use."""
 
@@ -27,7 +24,6 @@ class MockAdapter:
         product_ids = [s["id"] for s in context_snippets if s.get("source") == "product"]
         answer = "Mock answer: I used provided snippets to answer."
 
-        # Simple comparison logic
         if 'compare' in messages[-1]["content"].lower() and len(product_ids) >= 2:
             answer = f"Mock compare: {product_ids[0]} seems stronger than {product_ids[1]}."
             citations = product_ids[:2]
@@ -36,13 +32,8 @@ class MockAdapter:
 
         return {"answer": answer, "citations": citations}
 
-
-# ----------------------------
-# 🤖 OpenAI Adapter (real API mode)
-# ----------------------------
 class OpenAIAdapter:
     def __init__(self, api_key):
-        # Try to import OpenAI client in a flexible way.
         try:
             from openai import OpenAI as OpenAIClient
             self.client = OpenAIClient(api_key=api_key)
@@ -62,7 +53,6 @@ class OpenAIAdapter:
             if isinstance(texts, str):
                 texts = [texts]
 
-            # Call embeddings API
             if self.client_type == "openai_sdk_object":
                 response = self.client.embeddings.create(
                     model="text-embedding-3-small",
@@ -74,7 +64,6 @@ class OpenAIAdapter:
                     input=texts
                 )
 
-            # ✅ Handle both dict and object-like responses
             if isinstance(response, dict):
                 data = response.get("data", [])
             elif isinstance(response, str):
@@ -130,7 +119,6 @@ class OpenAIAdapter:
         if "openrouter.ai" in base_url:
             model_name = "openai/gpt-3.5-turbo"
 
-        # 🔥 System Prompt — ensures structured answers
         system_prompt = (
             "You are a precise product assistant. Answer the user's question using ONLY the context below.\n"
             "- If the context contains a **price**, state it exactly (e.g., $99.99).\n"
@@ -144,7 +132,6 @@ class OpenAIAdapter:
         context_text = "\n\n".join([f"[{s['id']}]: {s['text']}" for s in context_snippets])
         full_context = system_prompt + context_text
 
-        # Combine user + system messages
         user_query = messages[-1]["content"] if messages else "Hello"
         enhanced_messages = [
             {"role": "system", "content": full_context},
@@ -152,7 +139,6 @@ class OpenAIAdapter:
         ]
 
         try:
-            # OpenAI SDK object path
             if self.client_type == "openai_sdk_object":
                 response = self.client.chat.completions.create(
                     model=model_name,
@@ -172,7 +158,6 @@ class OpenAIAdapter:
                 if not answer:
                     answer = "I don't know based on the provided info."
             else:
-                # Legacy openai
                 response = self.client.ChatCompletion.create(
                     model=model_name,
                     messages=enhanced_messages,

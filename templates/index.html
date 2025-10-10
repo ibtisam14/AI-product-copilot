@@ -106,12 +106,9 @@
         </div>
     </header>
 
-    <!-- Main Content -->
     <main class="container mx-auto px-4 py-8">
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <!-- Left Column: Products & FAQs -->
             <div class="space-y-8">
-                <!-- Product Catalog Section -->
                 <section class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                     <div class="bg-gradient-to-r from-indigo-500 to-purple-600 p-4">
                         <div class="flex items-center gap-3">
@@ -130,7 +127,6 @@
 
                         <div id="productGrid"
                             class="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-96 overflow-y-auto scrollbar-thin p-1">
-                            <!-- Products will be loaded here -->
                         </div>
 
                         <div id="productEmptyState" class="hidden text-center py-8 text-gray-500">
@@ -140,7 +136,6 @@
                     </div>
                 </section>
 
-                <!-- FAQ Section -->
                 <section class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                     <div class="bg-gradient-to-r from-emerald-500 to-teal-600 p-4">
                         <div class="flex items-center gap-3">
@@ -157,7 +152,6 @@
                         </div>
 
                         <div id="faqList" class="space-y-3 max-h-80 overflow-y-auto scrollbar-thin p-1">
-                            <!-- FAQs will be loaded here -->
                         </div>
 
                         <div id="faqEmptyState" class="hidden text-center py-8 text-gray-500">
@@ -168,7 +162,6 @@
                 </section>
             </div>
 
-            <!-- Right Column: Chat -->
             <section
                 class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden h-fit lg:sticky lg:top-8">
                 <div class="bg-gradient-to-r from-cyan-500 to-blue-600 p-4">
@@ -187,7 +180,6 @@
                 </div>
 
                 <div class="p-5">
-                    <!-- Chat Messages -->
                     <div id="chatBox"
                         class="border border-gray-200 rounded-xl h-80 p-4 overflow-y-auto bg-gray-50/50 scrollbar-thin mb-4 space-y-4">
                         <div class="text-center text-gray-500 py-8">
@@ -196,7 +188,6 @@
                         </div>
                     </div>
 
-                    <!-- Chat Input -->
                     <div class="flex gap-2">
                         <div class="flex-1 relative">
                             <input type="text" id="userInput"
@@ -214,12 +205,10 @@
     </main>
 
     <script>
-        // ============ GLOBAL STATE ============
         let chatMode = "fast";
         let products = [];
         let faqs = [];
 
-        // ============ HELPER FUNCTIONS ============
         function getCookie(name) {
             let cookieValue = null;
             if (document.cookie && document.cookie !== "") {
@@ -236,7 +225,6 @@
         }
         const csrftoken = getCookie('csrftoken');
 
-        // ============ TOGGLE MODE ============
         document.getElementById("toggleMode").addEventListener("click", () => {
             chatMode = chatMode === "fast" ? "accurate" : "fast";
             const button = document.getElementById("toggleMode");
@@ -251,7 +239,6 @@
             }
         });
 
-        // ============ CHAT FUNCTIONALITY ============
         const chatBox = document.getElementById("chatBox");
         document.getElementById("sendBtn").addEventListener("click", sendMessage);
         document.getElementById("userInput").addEventListener("keypress", e => {
@@ -263,12 +250,10 @@
             const text = userInput.value.trim();
             if (!text) return;
 
-            // Clear initial message if it exists
             if (chatBox.children.length === 1 && chatBox.children[0].classList.contains('text-center')) {
                 chatBox.innerHTML = '';
             }
 
-            // Add user message
             const userMessage = document.createElement('div');
             userMessage.className = 'fade-in flex justify-end';
             userMessage.innerHTML = `
@@ -280,7 +265,6 @@
 
             userInput.value = "";
 
-            // Add loading indicator
             const loadingMessage = document.createElement('div');
             loadingMessage.className = 'fade-in flex justify-start';
             loadingMessage.innerHTML = `
@@ -311,7 +295,6 @@
                 const data = await res.json();
                 loadingMessage.remove();
 
-                // Add bot response
                 const botMessage = document.createElement('div');
                 botMessage.className = 'fade-in flex justify-start';
                 botMessage.innerHTML = `
@@ -351,7 +334,6 @@
             chatBox.scrollTop = chatBox.scrollHeight;
         }
 
-        // ============ DATA LOADING & RENDERING ============
         async function loadData() {
                 try {
                     const res = await fetch("/api/get-data/");
@@ -438,7 +420,6 @@
             });
         }
 
-        // ============ SEARCH FUNCTIONALITY ============
         document.getElementById("productSearch").addEventListener("input", (e) => {
             const q = e.target.value.toLowerCase();
             const filtered = products.filter(p =>
@@ -458,7 +439,6 @@
             renderFaqs(filtered);
         });
 
-        // ============ INITIALIZATION ============
         document.addEventListener('DOMContentLoaded', loadData);
     </script>
 </body>

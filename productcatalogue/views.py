@@ -1,4 +1,3 @@
-import json
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, permissions
@@ -12,7 +11,7 @@ from .utils import (
     store_faq_chunks_and_embeddings,
     retrieve_top_k,
 )
-from .models import Product, FAQChunk, EmbeddingVector
+from .models import Product, FAQChunk
 from django.conf import settings
 from django.shortcuts import render
 
@@ -24,8 +23,6 @@ def home(request):
 def upload_page(request):
     return render(request, "upload.html")
 
-
-# views.py
 @method_decorator(csrf_exempt, name="dispatch")
 class GetDataView(APIView):
     permission_classes = [permissions.AllowAny]
@@ -35,15 +32,13 @@ class GetDataView(APIView):
         faqs = list(FAQChunk.objects.all().values("id", "heading", "text"))
         return Response({"products": prods, "faqs": faqs})
 
-
-# Choose adapter: in production change to OpenAIAdapter if OPENAI_API_KEY set
 def get_adapter():
     api_key = getattr(settings, "OPENAI_API_KEY", "")
     if api_key:
-        print("✅ Using OpenAI Adapter")  # Debug message
+        print("✅ Using OpenAI Adapter")  
         return OpenAIAdapter(api_key)
     else:
-        print("⚠️ Using Mock Adapter (no API key found)")  # Debug message
+        print("⚠️ Using Mock Adapter (no API key found)") 
         return MockAdapter()
 
 
@@ -72,7 +67,6 @@ class UploadIngestView(APIView):
             prods = []
             texts = []
             for row in reader:
-                # Safely parse price
                 raw_price = row.get("price", 0)
                 try:
                     price = float(raw_price) if raw_price not in (None, "", "null", "NULL") else 0.0
@@ -91,8 +85,6 @@ class UploadIngestView(APIView):
                     "popularity": float(row.get("popularity", 0) or 0),
                 }
                 prods.append(prod)
-
-                # ✅ FIXED: Embed FULL product info including PRICE
                 embed_text = (
                     f"Product name: {prod['name']}. "
                     f"Description: {prod['notes']}. "
@@ -168,7 +160,6 @@ class ChatView(APIView):
             return Response({"error": "Failed to compute query embedding"}, status=500)
         query_vec = vectors[0]
 
-        # Retrieve top relevant embeddings (products + FAQs)
         top = retrieve_top_k(query_vec, k=8)
 
         if not top:
@@ -177,21 +168,18 @@ class ChatView(APIView):
                 "citations": []
             })
 
-        # Use top 3 most relevant snippets
         top3 = top[:3]
         context_snippets = [
             {"id": t["id"], "source": t["source"], "text": t["text"]}
             for t in top3
         ]
 
-        # Generate answer using retrieved context
         resp = adapter.get_completion(
             messages=messages,
             mode=mode,
             context_snippets=context_snippets
         )
 
-        # Ensure citations are included
         if "citations" not in resp:
             resp["citations"] = [c["id"] for c in context_snippets]
 

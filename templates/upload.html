@@ -47,7 +47,6 @@
 </head>
 
 <body class="bg-gradient-to-br from-gray-50 to-blue-50 min-h-screen">
-    <!-- Header -->
     <header class="bg-white shadow-sm border-b">
         <div class="container mx-auto px-4 py-4">
             <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
@@ -70,10 +69,8 @@
         </div>
     </header>
 
-    <!-- Main Content -->
     <main class="container mx-auto px-4 py-8">
         <div class="max-w-2xl mx-auto">
-            <!-- Upload Instructions -->
             <section class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden mb-8">
                 <div class="bg-gradient-to-r from-emerald-500 to-teal-600 p-4">
                     <div class="flex items-center gap-3">
@@ -113,7 +110,6 @@
                 </div>
             </section>
 
-            <!-- Upload Section -->
             <section class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                 <div class="bg-gradient-to-r from-indigo-500 to-purple-600 p-4">
                     <div class="flex items-center gap-3">
@@ -124,7 +120,6 @@
 
                 <div class="p-6">
                     <form id="uploadForm" class="space-y-6">
-                        <!-- Products CSV Upload -->
                         <div class="file-upload-area">
                             <label class="block text-sm font-medium text-gray-700 mb-3">
                                 <i class="fas fa-file-csv text-blue-500 mr-2"></i>
@@ -139,11 +134,9 @@
                                 <input type="file" name="products" accept=".csv" class="hidden" id="productsFile">
                             </div>
                             <div id="productsFileInfo" class="mt-2 hidden">
-                                <!-- File info will be shown here -->
                             </div>
                         </div>
 
-                        <!-- FAQ Markdown Upload -->
                         <div class="file-upload-area">
                             <label class="block text-sm font-medium text-gray-700 mb-3">
                                 <i class="fas fa-file-alt text-green-500 mr-2"></i>
@@ -158,11 +151,9 @@
                                 <input type="file" name="faq" accept=".md" class="hidden" id="faqFile">
                             </div>
                             <div id="faqFileInfo" class="mt-2 hidden">
-                                <!-- File info will be shown here -->
                             </div>
                         </div>
 
-                        <!-- Upload Button -->
                         <button type="submit" id="uploadButton"
                             class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-3 px-4 rounded-xl transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
                             <i class="fas fa-upload"></i>
@@ -170,12 +161,9 @@
                         </button>
                     </form>
 
-                    <!-- Upload Result -->
                     <div id="uploadResult" class="mt-4 fade-in hidden">
-                        <!-- Results will be shown here -->
                     </div>
 
-                    <!-- Loading Indicator -->
                     <div id="loadingIndicator" class="mt-4 hidden">
                         <div class="flex items-center justify-center gap-3 text-indigo-600">
                             <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-indigo-600"></div>
@@ -188,7 +176,6 @@
                 </div>
             </section>
 
-            <!-- Next Steps -->
             <section class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden mt-8">
                 <div class="bg-gradient-to-r from-amber-500 to-orange-600 p-4">
                     <div class="flex items-center gap-3">
@@ -235,7 +222,6 @@
     </main>
 
     <script>
-        // ============ HELPER FUNCTIONS ============
         function getCookie(name) {
             let cookieValue = null;
             if (document.cookie && document.cookie !== "") {
@@ -252,25 +238,22 @@
         }
         const csrftoken = getCookie('csrftoken');
 
-        // ============ FILE UPLOAD ENHANCEMENTS ============
         function setupFileUpload(dropAreaId, fileInputId, fileInfoId, fileType) {
             const dropArea = document.getElementById(dropAreaId);
             const fileInput = document.getElementById(fileInputId);
             const fileInfo = document.getElementById(fileInfoId);
 
-            // Click to select file
+          
             dropArea.addEventListener('click', () => {
                 fileInput.click();
             });
 
-            // File input change
             fileInput.addEventListener('change', (e) => {
                 if (e.target.files.length > 0) {
                     showFileInfo(e.target.files[0], fileInfo, fileType);
                 }
             });
 
-            // Drag and drop functionality
             ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
                 dropArea.addEventListener(eventName, preventDefaults, false);
             });
@@ -328,7 +311,6 @@
             fileInfoElement.classList.add('hidden');
         }
 
-        // ============ UPLOAD HANDLER ============
         document.getElementById("uploadForm").addEventListener("submit", async (e) => {
             e.preventDefault();
 
@@ -337,7 +319,6 @@
             const uploadResult = document.getElementById("uploadResult");
             const progressBar = document.getElementById("progressBar");
 
-            // Check if at least one file is selected
             const productsFile = document.getElementById("productsFile").files[0];
             const faqFile = document.getElementById("faqFile").files[0];
 
@@ -346,13 +327,11 @@
                 return;
             }
 
-            // Disable button and show loading
             uploadButton.disabled = true;
             uploadButton.innerHTML = '<i class="fas fa-spinner animate-spin"></i><span>Processing...</span>';
             loadingIndicator.classList.remove('hidden');
             uploadResult.classList.add('hidden');
 
-            // Simulate progress
             let progress = 0;
             const progressInterval = setInterval(() => {
                 progress += Math.random() * 10;
@@ -373,7 +352,6 @@
 
                 const data = await res.json();
 
-                // Complete progress
                 clearInterval(progressInterval);
                 progressBar.style.width = '100%';
 
@@ -384,7 +362,6 @@
                         showResult(`❌ Upload failed: ${data.detail || 'Unknown error'}`, "error");
                     }
 
-                    // Reset UI
                     loadingIndicator.classList.add('hidden');
                     uploadButton.disabled = false;
                     uploadButton.innerHTML = '<i class="fas fa-upload"></i><span>Process Upload</span>';
@@ -417,9 +394,7 @@
             uploadResult.classList.remove('hidden');
         }
 
-        // ============ INITIALIZATION ============
         document.addEventListener('DOMContentLoaded', () => {
-            // Setup file upload areas
             setupFileUpload('productsDropArea', 'productsFile', 'productsFileInfo', 'CSV');
             setupFileUpload('faqDropArea', 'faqFile', 'faqFileInfo', 'Markdown');
         });

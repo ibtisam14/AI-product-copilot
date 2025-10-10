@@ -37,7 +37,6 @@ def _coerce_vector_to_list(vec):
         arr = np.array(vec, dtype=float).reshape(-1)
         return [float(x) for x in arr.tolist()]
     except Exception:
-        # Last-resort fallback: try to iterate
         try:
             return [float(x) for x in list(vec)]
         except Exception:
@@ -52,7 +51,6 @@ def store_product_and_embeddings(products: List[Dict], vectors: List[List[float]
     from .models import Product, EmbeddingVector
     with transaction.atomic():
         for prod, vec in zip(products, vectors):
-            # Save product info
             p, _ = Product.objects.update_or_create(
                 id=prod['id'],
                 defaults={
@@ -67,7 +65,6 @@ def store_product_and_embeddings(products: List[Dict], vectors: List[List[float]
                 }
             )
 
-            # ✅ IMPROVED: Use consistent, LLM-friendly text with clear price
             price_display = f"${p.price:.2f}" if p.price is not None and p.price > 0 else "Price not available"
             stored_text = (
                 f"Product name: {p.name}. "
@@ -78,7 +75,6 @@ def store_product_and_embeddings(products: List[Dict], vectors: List[List[float]
                 f"Recommended season: {p.season}."
             )
 
-            # Ensure vector is a JSON-serializable list of floats
             clean_vec = _coerce_vector_to_list(vec)
             ev_id = f"p_{p.id}"
             EmbeddingVector.objects.update_or_create(
@@ -99,7 +95,6 @@ def store_faq_chunks_and_embeddings(chunks: List[Dict], vectors: List[List[float
     with transaction.atomic():
         for chunk, vec in zip(chunks, vectors):
             fid = chunk.get('id')
-            # Save FAQ chunk
             FAQChunk.objects.update_or_create(
                 id=fid,
                 defaults={
@@ -108,7 +103,6 @@ def store_faq_chunks_and_embeddings(chunks: List[Dict], vectors: List[List[float
                 }
             )
             clean_vec = _coerce_vector_to_list(vec)
-            # Save embedding
             EmbeddingVector.objects.update_or_create(
                 id=f"f_{fid}",
                 defaults={
@@ -130,7 +124,6 @@ def load_all_vectors():
             vec_list = json.loads(ev.vector)
             vec = np.array(vec_list, dtype=float)
         except Exception:
-            # If stored incorrectly, try fallback parse
             try:
                 vec = np.array(ev.vector, dtype=float)
             except Exception:
@@ -156,12 +149,10 @@ def retrieve_top_k(query_vector, k=8, threshold=0.35):
     qv = np.array(query_vector).reshape(1, -1)
     cos = cosine_similarity(qv, mats).flatten()
 
-    # Filter by similarity threshold
     filtered_idx = [i for i, s in enumerate(cos) if s >= threshold]
     if not filtered_idx:
         return []
 
-    # Sort by similarity and return top k
     sorted_idx = sorted(filtered_idx, key=lambda i: -cos[i])[:k]
     results = []
     for idx in sorted_idx:
