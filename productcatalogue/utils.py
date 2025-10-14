@@ -27,6 +27,33 @@ def chunk_faq_markdown(md_text: str, approx_k=1200):
     if cur:
         chunks.append((cur_heading, "\n".join(cur).strip()))
     return chunks
+def chunk_plain_text(text: str, approx_k=1200):
+    """
+    Split plain text into ~approx_k char chunks by paragraphs.
+    Returns list of text chunks (no headings).
+    """
+    paragraphs = [p.strip() for p in text.split("\n\n") if p.strip()]
+    chunks = []
+    current_chunk = ""
+
+    for para in paragraphs:
+        if len(current_chunk) + len(para) + 1 < approx_k:
+            current_chunk += ("\n\n" + para) if current_chunk else para
+        else:
+            if current_chunk:
+                chunks.append(current_chunk)
+            current_chunk = para
+
+    if current_chunk:
+        chunks.append(current_chunk)
+
+    # Fallback: if no double-newline, split by character count
+    if not chunks:
+        for i in range(0, len(text), approx_k):
+            chunks.append(text[i:i+approx_k])
+
+    return chunks
+
 
 def _coerce_vector_to_list(vec):
     """

@@ -1,7 +1,7 @@
 import json
 import hashlib
 from django.conf import settings
-import chromadb  # 🟢 NEW — Import ChromaDB
+import chromadb
 
 
 class MockAdapter:
@@ -36,6 +36,8 @@ class MockAdapter:
 
 
 class OpenAIAdapter:
+    """Adapter for OpenAI or OpenRouter embedding + chat completions."""
+
     def __init__(self, api_key):
         try:
             from openai import OpenAI as OpenAIClient
@@ -54,17 +56,19 @@ class OpenAIAdapter:
             except Exception:
                 raise
 
-        # 🟢 NEW — Initialize Chroma client and collection
-        self.chroma_client = chromadb.Client()
+        # 🟢 Persistent Chroma client (saved on disk)
+        self.chroma_client = chromadb.PersistentClient(path="chroma_db")
         self.collection = self.chroma_client.get_or_create_collection(name="faq_collection")
-        print("✅ Connected to ChromaDB (collection: faq_collection)")
+        print("✅ Connected to ChromaDB (persistent collection: faq_collection)")
 
+    # ✅ FIXED FINAL VERSION — handles all response formats
     def get_embeddings(self, texts):
-        """Robust embedding getter compatible with multiple OpenAI SDK shapes"""
+        """Get and store embeddings safely, compatible with OpenAI + OpenRouter."""
         try:
             if isinstance(texts, str):
                 texts = [texts]
 
+            # Call embedding API (SDK or legacy)
             if self.client_type == "openai_sdk_object":
                 response = self.client.embeddings.create(
                     model="text-embedding-3-small",
@@ -76,52 +80,55 @@ class OpenAIAdapter:
                     input=texts
                 )
 
-            # Normalize response
-            if isinstance(response, dict):
-                data = response.get("data", [])
-            elif isinstance(response, str):
-                try:
-                    parsed = json.loads(response)
-                    data = parsed.get("data", [])
-                except Exception:
-                    data = []
+            # 🧠 Handle multiple response formats
+            if isinstance(response, str):
+                response = json.loads(response)
+
+            # Extract data safely
+            data = None
+            if hasattr(response, "data"):
+                data = response.data
+            elif isinstance(response, dict) and "data" in response:
+                data = response["data"]
             else:
-                try:
-                    data = getattr(response, "data", [])
-                except Exception:
-                    data = []
+                print("⚠️ Unexpected embedding response format:", type(response))
+                data = []
 
             embeddings = []
             for item in data:
+                emb = None
                 if isinstance(item, dict):
                     emb = item.get("embedding")
-                else:
-                    emb = getattr(item, "embedding", None)
+                elif hasattr(item, "embedding"):
+                    emb = item.embedding
                 if emb is not None:
-                    embeddings.append([float(x) for x in list(emb)])
+                    embeddings.append([float(x) for x in emb])
 
             if not embeddings:
+                print("⚠️ No embeddings returned — using fallback.")
                 return self._get_fallback_embeddings(texts)
 
-            # 🟢 NEW — Save embeddings + text to ChromaDB
+            # 🟢 Save embeddings to ChromaDB
             for i, text in enumerate(texts):
-                emb = embeddings[i]
-                self.collection.add(
-                    documents=[text],
-                    embeddings=[emb],
-                    metadatas=[{"source": "faq"}],
-                    ids=[f"doc_{hash(text)}"]
-                )
+                try:
+                    self.collection.add(
+                        documents=[text],
+                        embeddings=[embeddings[i]],
+                        metadatas=[{"source": "pdf"}],
+                        ids=[f"doc_{hash(text)}"]
+                    )
+                except Exception as e:
+                    print(f"⚠️ Error saving to ChromaDB: {e}")
 
-            print("✅ Saved to ChromaDB:", texts)
+            print(f"✅ Got and saved {len(embeddings)} embeddings to ChromaDB.")
             return embeddings
 
         except Exception as e:
-            print("❌ Error getting embeddings:", e)
+            print(f"❌ Error getting embeddings: {e}")
             return self._get_fallback_embeddings(texts)
 
     def _get_fallback_embeddings(self, texts):
-        """Fallback to deterministic pseudo-embeddings"""
+        """Fallback deterministic pseudo-embeddings if API fails."""
         vectors = []
         for t in texts:
             h = hashlib.sha256(t.encode("utf-8")).digest()
@@ -131,7 +138,7 @@ class OpenAIAdapter:
         return vectors
 
     def get_completion(self, messages, mode, context_snippets):
-        """Chat completion handler with improved prompt for price/hours/rating"""
+        """Generate a completion using context and user question."""
         if mode == "fast":
             model_name = "gpt-3.5-turbo"
             temperature = 0.7
@@ -144,11 +151,9 @@ class OpenAIAdapter:
             model_name = "openai/gpt-3.5-turbo"
 
         system_prompt = (
-            "You are a precise product assistant. Answer the user's question using ONLY the context below.\n"
-            "- If the context contains a **price**, state it exactly (e.g., $99.99).\n"
-            "- If asked about **battery life**, report the number of hours (e.g., 12 hours).\n"
-            "- If asked about **rating**, give the numerical score (e.g., 4.8).\n"
-            "- If the answer is not in the context, say: \"I don't know based on the provided info.\"\n"
+            "You are a precise product/FAQ assistant. Answer the user's question using ONLY the context below.\n"
+            "- If the context contains specific facts, quote them exactly.\n"
+            "- If you cannot find an answer, say: \"I don't know based on the provided info.\"\n"
             "- Always end with: Sources: [list of source IDs].\n\n"
             "Context:\n"
         )
@@ -170,17 +175,7 @@ class OpenAIAdapter:
                     temperature=temperature,
                     max_tokens=300
                 )
-                answer = None
-                if hasattr(response, "choices"):
-                    ch = getattr(response, "choices", None)
-                    if ch and len(ch) > 0:
-                        msg = getattr(ch[0], "message", None)
-                        if isinstance(msg, dict):
-                            answer = msg.get("content")
-                        elif hasattr(msg, "content"):
-                            answer = msg.content
-                if not answer:
-                    answer = "I don't know based on the provided info."
+                answer = response.choices[0].message.content.strip()
             else:
                 response = self.client.ChatCompletion.create(
                     model=model_name,
@@ -188,21 +183,17 @@ class OpenAIAdapter:
                     temperature=temperature,
                     max_tokens=300
                 )
-                choices = response.get("choices", [])
-                answer = choices[0]["message"]["content"].strip() if choices else "I don't know based on the provided info."
+                answer = response["choices"][0]["message"]["content"].strip()
 
             citations = [s["id"] for s in context_snippets[:3]]
-            return {
-                "answer": answer.strip() if isinstance(answer, str) else str(answer),
-                "citations": citations
-            }
+            return {"answer": answer, "citations": citations}
 
         except Exception as e:
             print(f"❌ Error getting completion: {e}")
             return self._get_fallback_completion(messages, mode, context_snippets)
 
     def _get_fallback_completion(self, messages, mode, context_snippets):
-        """Fallback to mock completion"""
+        """Fallback to mock completion."""
         snippet_ids = [s.get("id") for s in context_snippets]
         answer = "Fallback: I used the provided context snippets."
         citations = snippet_ids[:3]
