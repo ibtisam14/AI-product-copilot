@@ -5,6 +5,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from rest_framework.parsers import MultiPartParser, FormParser
 from .adapters import MockAdapter, OpenAIAdapter
+from .db import collection
 from .utils import (
     chunk_faq_markdown,
     store_product_and_embeddings,
@@ -183,4 +184,34 @@ class ChatView(APIView):
         if "citations" not in resp:
             resp["citations"] = [c["id"] for c in context_snippets]
 
-        return Response(resp)
+        return Response(resp) 
+    
+    
+class ChatbotView(APIView):
+    def post(self, request):
+        user_message = request.data.get("message")
+
+        # Initialize OpenAI client (put your API key in .env file normally)
+        client = OpenAI(api_key="YOUR_OPENAI_API_KEY")
+
+        # Create embedding of user message
+        embedding = client.embeddings.create(
+            input=user_message,
+            model="text-embedding-3-small"
+        ).data[0].embedding
+
+        # Save message & response in Chroma
+        # For now let's make a dummy answer (you can replace this with your AI reply)
+        ai_response = "This is a sample answer from your AI bot."
+
+        collection.add(
+            documents=[user_message],
+            embeddings=[embedding],
+            metadatas=[{"answer": ai_response}],
+            ids=[f"chat_{len(collection.get()['ids']) + 1}"]
+        )
+
+        return Response({
+            "user_message": user_message,
+            "ai_response": ai_response
+        })    

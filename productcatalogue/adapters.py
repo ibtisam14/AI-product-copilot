@@ -1,6 +1,7 @@
 import json
 import hashlib
 from django.conf import settings
+import chromadb  # 🟢 NEW — Import ChromaDB
 
 
 class MockAdapter:
@@ -53,6 +54,11 @@ class OpenAIAdapter:
             except Exception:
                 raise
 
+        # 🟢 NEW — Initialize Chroma client and collection
+        self.chroma_client = chromadb.Client()
+        self.collection = self.chroma_client.get_or_create_collection(name="faq_collection")
+        print("✅ Connected to ChromaDB (collection: faq_collection)")
+
     def get_embeddings(self, texts):
         """Robust embedding getter compatible with multiple OpenAI SDK shapes"""
         try:
@@ -97,6 +103,17 @@ class OpenAIAdapter:
             if not embeddings:
                 return self._get_fallback_embeddings(texts)
 
+            # 🟢 NEW — Save embeddings + text to ChromaDB
+            for i, text in enumerate(texts):
+                emb = embeddings[i]
+                self.collection.add(
+                    documents=[text],
+                    embeddings=[emb],
+                    metadatas=[{"source": "faq"}],
+                    ids=[f"doc_{hash(text)}"]
+                )
+
+            print("✅ Saved to ChromaDB:", texts)
             return embeddings
 
         except Exception as e:

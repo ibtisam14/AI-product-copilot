@@ -1,6 +1,7 @@
 from django.db import models
 import uuid
 from django.utils import timezone
+from django.contrib.auth.models import User
 
 class Product(models.Model):
     id = models.CharField(max_length=100, primary_key=True)  # keep CSV id
@@ -40,3 +41,9 @@ class EmbeddingVector(models.Model):
 
     def __str__(self):
         return f"{self.id} ({self.source})"
+    
+    
+class ChatHistory(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    question = models.TextField()
+    answer = models.TextField()    
